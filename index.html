@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -398,7 +399,7 @@ function renderHome(){
         </div>
       </div>
     </div>
-    '+liveBanner+'
+    ${liveBanner}
     <div style="padding:0 20px 20px">
       <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Iniciar Treino</p>
       ${wBtns}
@@ -947,17 +948,21 @@ function renderTennis(){
         </div>
       </div>
       <div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi? Com quem jogou?" rows="4" style="resize:vertical"></textarea></div>
-      <button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Treino de Tênis</button>
-    </div>`;
+
+```
+  <button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Treino de Tênis</button>
+</div>`;
+```
+
 }
-function tStep(d){ const i=document.getElementById('t-dur'); if(i) i.value=Math.max(5,(+i.value||60)+d); }
+function tStep(d){ const i=document.getElementById(‘t-dur’); if(i) i.value=Math.max(5,(+i.value||60)+d); }
 function saveTennis(){
-  const dur=+(document.getElementById('t-dur')?.value)||60;
-  const notes=document.getElementById('t-notes')?.value||'';
-  const date=document.getElementById('t-date')?.value||new Date().toISOString().split('T')[0];
-  saveSession({id:uid(),type:'tennis',workoutName:'Tênis 🎾',date:new Date(date+'T12:00:00').toISOString(),duration:dur,notes});
-  toast('🎾 Tênis salvo!');
-  setTimeout(()=>showPage('history'),700);
+const dur=+(document.getElementById(‘t-dur’)?.value)||60;
+const notes=document.getElementById(‘t-notes’)?.value||’’;
+const date=document.getElementById(‘t-date’)?.value||new Date().toISOString().split(‘T’)[0];
+saveSession({id:uid(),type:‘tennis’,workoutName:‘Tênis 🎾’,date:new Date(date+‘T12:00:00’).toISOString(),duration:dur,notes});
+toast(‘🎾 Tênis salvo!’);
+setTimeout(()=>showPage(‘history’),700);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────
@@ -965,5 +970,6 @@ initData();
 renderHome();
 fetchGifsInBackground();
 </script>
+
 </body>
 </html>
