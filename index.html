@@ -197,15 +197,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Load exercise images async so they don't block app startup
-fetch('exercise imgs.json')
-  .then(r => r.json())
-  .then(data => {
-    Object.assign(EXERCISE_IMGS, data);
-    EXSUGG = Object.keys(EXERCISE_IMGS).sort();
-  })
-  .catch(() => { /* images won't show but app still works */ });
-
 'use strict';
 
 // ── EXERCISE IMAGE MAP ─────────────────────────────────────────────────
@@ -1478,11 +1469,16 @@ toast(‘↩ Tema restaurado!’);
 // ── BOOT ───────────────────────────────────────────────────────────────
 loadSavedTheme();
 initData();
-try {
 renderHome();
-} catch(e) {
-document.getElementById(‘home-body’).innerHTML = ‘<div style="padding:30px;color:#f85149;font-size:14px;font-family:monospace"><b>Erro ao carregar:</b><br>’ + e.message + ‘<br><br>’ + e.stack + ‘</div>’;
-}
+
+// Load exercise images in background (non-blocking)
+fetch(‘exercise imgs.json’)
+.then(r => r.json())
+.then(data => {
+Object.assign(EXERCISE_IMGS, data);
+EXSUGG = Object.keys(EXERCISE_IMGS).sort();
+})
+.catch(e => console.log(‘imgs:’, e));
 </script>
 
 </body>
