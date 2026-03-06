@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -144,6 +143,71 @@ input:focus,textarea:focus{border-color:var(--blue)}
 <script>
 'use strict';
 
+// ── EXERCISE GIF IMAGES ──────────────────────────────────────────────
+const GIF_CACHE_KEY = 'gt_gifs_v2';
+const GIF_SEARCH = {
+  'Lat Pulldown':     'lat pulldown',
+  'Leg Extension':    'leg extension',
+  'Hip Adductor':     'hip adductor',
+  'Tríceps na Corda': 'triceps pushdown',
+  'Bíceps Curl':      'barbell curl',
+  'Abdominal':        'crunch',
+  'Leg Press':        'leg press',
+  'Seated Leg Curl':  'seated leg curl',
+  'Hip Abductor':     'hip abductor',
+  'Chest Press':      'chest press',
+};
+let EXERCISE_GIFS = {};
+
+// Load from cache immediately
+try {
+  const cached = localStorage.getItem(GIF_CACHE_KEY);
+  if (cached) EXERCISE_GIFS = JSON.parse(cached);
+} catch(e) {}
+
+function fetchGifsInBackground() {
+  if (Object.keys(EXERCISE_GIFS).length >= Object.keys(GIF_SEARCH).length) return;
+  const names = Object.keys(GIF_SEARCH);
+  let i = 0;
+  function next() {
+    if (i >= names.length) {
+      try { localStorage.setItem(GIF_CACHE_KEY, JSON.stringify(EXERCISE_GIFS)); } catch(e) {}
+      return;
+    }
+    const name = names[i++];
+    if (EXERCISE_GIFS[name]) { next(); return; } // already cached
+    fetch('https://exercisedb.p.rapidapi.com/exercises/name/' + encodeURIComponent(GIF_SEARCH[name]) + '?limit=1&offset=0', {
+      headers: {
+        'x-rapidapi-host': 'exercisedb.p.rapidapi.com',
+        'x-rapidapi-key': '22ae6f8efemsh24b6ff59f839a94p177755jsn12bfe3dfdcd6'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data && data[0] && data[0].gifUrl) {
+        EXERCISE_GIFS[name] = data[0].gifUrl;
+      }
+      setTimeout(next, 250);
+    })
+    .catch(() => setTimeout(next, 250));
+  }
+  next();
+}
+
+function exThumb(name, done) {
+  const url = EXERCISE_GIFS[name];
+  const emoji = done ? '✅' : '💪';
+  let html = '<div style="width:58px;height:58px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#1a1f2e;position:relative;display:flex;align-items:center;justify-content:center">';
+  if (url) {
+    html += '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.remove()"/>';
+  }
+  html += '<span style="font-size:' + (url ? '0' : '26') + 'px;position:relative;z-index:1">' + emoji + '</span>';
+  if (done) html += '<div style="position:absolute;inset:0;background:rgba(63,185,80,0.75);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2">✅</div>';
+  html += '</div>';
+  return html;
+}
+
+
 // ── DATA ──────────────────────────────────────────────────────────────
 const KEYS = {W:'gt_w2', H:'gt_h2', WH:'gt_wh2', INIT:'gt_init3'};
 
@@ -271,6 +335,18 @@ function renderHome(){
   const workouts = getWorkouts();
   const wk = weekStats();
   const hist = getHistory().slice(0,3);
+  // Live workout banner
+  let liveBanner = '';
+  if (WO) {
+    liveBanner = '<div onclick="showPage(\'workout\',\''+WO.workout.id+'\');" style="margin:0 20px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(77,148,255,0.15),rgba(255,123,0,0.1));border:1px solid rgba(77,148,255,0.4);border-radius:var(--r);display:flex;align-items:center;gap:12px;cursor:pointer">'
+      +'<div style="width:44px;height:44px;border-radius:10px;background:rgba(77,148,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">▶️</div>'
+      +'<div style="flex:1">'
+      +'<div style="font-weight:700;color:var(--blue2);font-size:15px">Treino em andamento</div>'
+      +'<div style="font-size:13px;color:var(--txt2)">'+esc(WO.workout.name)+' · <span id="banner-clock">'+fmtDur(WO.elapsed)+'</span></div>'
+      +'</div>'
+      +'<span style="color:var(--blue2);font-size:20px">›</span>'
+      +'</div>';
+  }
   const colors = [
     {bg:'rgba(77,148,255,0.1)',bd:'rgba(77,148,255,0.3)',ic:'rgba(77,148,255,0.15)',tx:'#58a6ff',em:'💪'},
     {bg:'rgba(255,123,0,0.1)',bd:'rgba(255,123,0,0.3)',ic:'rgba(255,123,0,0.15)',tx:'#ff9a3c',em:'🔥'},
@@ -322,6 +398,7 @@ function renderHome(){
         </div>
       </div>
     </div>
+    '+liveBanner+'
     <div style="padding:0 20px 20px">
       <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Iniciar Treino</p>
       ${wBtns}
@@ -364,6 +441,8 @@ function startWorkout(id){
     WO.elapsed = Math.floor((Date.now()-WO.start)/1000);
     const el=document.getElementById('wo-clock');
     if(el) el.textContent=fmtDur(WO.elapsed);
+    const bc=document.getElementById('banner-clock');
+    if(bc) bc.textContent=fmtDur(WO.elapsed);
     woUpdateProgress();
   },1000);
   renderWoHeader();
@@ -390,9 +469,10 @@ function renderWoHeader(){
   if(!WO) return;
   document.getElementById('wo-hdr').innerHTML=`
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <button onclick="woAskFinish()" style="background:none;border:none;color:var(--txt2);font-size:22px;padding:4px;line-height:1">←</button>
+      <button onclick="showPage('home')" style="background:none;border:none;color:var(--txt2);font-size:22px;padding:4px;line-height:1;cursor:pointer">←</button>
       <div style="flex:1;font-family:var(--fd);font-size:24px">${esc(WO.workout.name)}</div>
       <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:6px 12px;font-family:var(--fd);font-size:22px;color:var(--blue2)" id="wo-clock">0s</div>
+      <button onclick="woAskFinish()" style="background:rgba(248,81,73,0.12);border:1px solid rgba(248,81,73,0.35);border-radius:var(--rs);padding:6px 12px;color:#f85149;font-family:var(--fb);font-size:13px;font-weight:700;cursor:pointer">⏹ Parar</button>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="prog" style="flex:1"><div class="prog-fill" id="wo-prog" style="width:0%"></div></div>
@@ -444,7 +524,7 @@ function renderExCard(ex){
 
   return `<div id="exc-${ex.id}" style="background:var(--card);border:1px solid ${done?'var(--green)':'var(--border)'};border-radius:var(--rl);margin-bottom:12px;overflow:hidden;${done?'':''}">
     <div style="padding:14px 16px;display:flex;align-items:center;gap:12px">
-      <div style="width:48px;height:48px;border-radius:12px;background:${done?'rgba(63,185,80,0.15)':'var(--bluedim)'};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${done?'✅':'💪'}</div>
+      ${exThumb(ex.name, done)}
       <div style="flex:1">
         <div style="font-weight:700;font-size:16px;color:${done?'var(--green)':'var(--txt)'}">${esc(ex.name)}</div>
         <div style="font-size:13px;color:var(--txt2)">${WO.sets[ex.id]}/${ex.sets} séries · ${ex.reps} reps</div>
@@ -867,27 +947,23 @@ function renderTennis(){
         </div>
       </div>
       <div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi? Com quem jogou?" rows="4" style="resize:vertical"></textarea></div>
-
-```
-  <button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Treino de Tênis</button>
-</div>`;
-```
-
+      <button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Treino de Tênis</button>
+    </div>`;
 }
-function tStep(d){ const i=document.getElementById(‘t-dur’); if(i) i.value=Math.max(5,(+i.value||60)+d); }
+function tStep(d){ const i=document.getElementById('t-dur'); if(i) i.value=Math.max(5,(+i.value||60)+d); }
 function saveTennis(){
-const dur=+(document.getElementById(‘t-dur’)?.value)||60;
-const notes=document.getElementById(‘t-notes’)?.value||’’;
-const date=document.getElementById(‘t-date’)?.value||new Date().toISOString().split(‘T’)[0];
-saveSession({id:uid(),type:‘tennis’,workoutName:‘Tênis 🎾’,date:new Date(date+‘T12:00:00’).toISOString(),duration:dur,notes});
-toast(‘🎾 Tênis salvo!’);
-setTimeout(()=>showPage(‘history’),700);
+  const dur=+(document.getElementById('t-dur')?.value)||60;
+  const notes=document.getElementById('t-notes')?.value||'';
+  const date=document.getElementById('t-date')?.value||new Date().toISOString().split('T')[0];
+  saveSession({id:uid(),type:'tennis',workoutName:'Tênis 🎾',date:new Date(date+'T12:00:00').toISOString(),duration:dur,notes});
+  toast('🎾 Tênis salvo!');
+  setTimeout(()=>showPage('history'),700);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────
 initData();
 renderHome();
+fetchGifsInBackground();
 </script>
-
 </body>
 </html>
