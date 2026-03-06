@@ -1186,18 +1186,15 @@ r.readAsText(f);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────
+loadSavedTheme();
 initData();
 renderHome();
-</script>
 
-</body>
-</html>
-<script>
 // ══════════════════════════════════════════════════════════════════════
 // PROFILE
 // ══════════════════════════════════════════════════════════════════════
-const PROFILE_KEY = 'gt_profile_v1';
-const WEIGHT_LOG_KEY = 'gt_weightlog_v1';
+const PROFILE_KEY = ‘gt_profile_v1’;
+const WEIGHT_LOG_KEY = ‘gt_weightlog_v1’;
 
 function getProfile() { return ls(PROFILE_KEY) || {name:’’,photo:’’,weight:’’,height:’’,goal:‘hypertrophy’,birthdate:’’}; }
 function saveProfile(p) { lss(PROFILE_KEY, p); }
@@ -1470,225 +1467,226 @@ saveWorkouts([…getWorkouts(), newW]);
 toast(‘✅ “’+w.name+’” adicionado aos seus treinos!’);
 renderSuggest();
 }
-</script>
 
-<script>
 // ══════════════════════════════════════════════════════════════════════
 // THEME ENGINE
 // ══════════════════════════════════════════════════════════════════════
 var THEMES = [
-  {
-    id: 'dark', name: 'Dark', emoji: '🌑',
-    bg:'#0d1117', bg2:'#161b22', card:'#1c2128', border:'#30363d',
-    blue:'#4d94ff', blue2:'#58a6ff', bluedim:'rgba(77,148,255,0.12)',
-    txt:'#e6edf3', txt2:'#8b949e', muted:'#484f58',
-    accent:'#4d94ff', font:'Bebas Neue'
-  },
-  {
-    id: 'amoled', name: 'AMOLED', emoji: '⬛',
-    bg:'#000000', bg2:'#0a0a0a', card:'#111111', border:'#222222',
-    blue:'#4d94ff', blue2:'#58a6ff', bluedim:'rgba(77,148,255,0.1)',
-    txt:'#ffffff', txt2:'#888888', muted:'#444444',
-    accent:'#4d94ff', font:'Bebas Neue'
-  },
-  {
-    id: 'midnight', name: 'Midnight', emoji: '🌌',
-    bg:'#0a0015', bg2:'#12002a', card:'#1a0035', border:'#2d0060',
-    blue:'#a371f7', blue2:'#c4b5fd', bluedim:'rgba(163,113,247,0.12)',
-    txt:'#f0e8ff', txt2:'#9d7fcc', muted:'#4a3570',
-    accent:'#a371f7', font:'Bebas Neue'
-  },
-  {
-    id: 'forest', name: 'Floresta', emoji: '🌿',
-    bg:'#0a120a', bg2:'#0f1f0f', card:'#152415', border:'#1e3a1e',
-    blue:'#3fb950', blue2:'#56d364', bluedim:'rgba(63,185,80,0.12)',
-    txt:'#e8f5e8', txt2:'#7db87d', muted:'#3a5c3a',
-    accent:'#3fb950', font:'Bebas Neue'
-  },
-  {
-    id: 'fire', name: 'Fogo', emoji: '🔥',
-    bg:'#110800', bg2:'#1a0f00', card:'#231500', border:'#3d2200',
-    blue:'#ff7b00', blue2:'#ff9a3c', bluedim:'rgba(255,123,0,0.12)',
-    txt:'#fff0e0', txt2:'#cc8844', muted:'#5c3d1a',
-    accent:'#ff7b00', font:'Bebas Neue'
-  },
-  {
-    id: 'ocean', name: 'Oceano', emoji: '🌊',
-    bg:'#000d1a', bg2:'#001833', card:'#002244', border:'#003366',
-    blue:'#2dd4bf', blue2:'#5eead4', bluedim:'rgba(45,212,191,0.12)',
-    txt:'#e0f7f5', txt2:'#6bbfb5', muted:'#2a6b66',
-    accent:'#2dd4bf', font:'Bebas Neue'
-  },
-  {
-    id: 'rose', name: 'Rosa', emoji: '🌸',
-    bg:'#120008', bg2:'#1e0012', card:'#2a001a', border:'#440028',
-    blue:'#f472b6', blue2:'#f9a8d4', bluedim:'rgba(244,114,182,0.12)',
-    txt:'#ffe8f4', txt2:'#c47a9a', muted:'#5c2a42',
-    accent:'#f472b6', font:'Bebas Neue'
-  },
-  {
-    id: 'light', name: 'Claro', emoji: '☀️',
-    bg:'#f5f7fa', bg2:'#ffffff', card:'#ffffff', border:'#e1e5eb',
-    blue:'#2563eb', blue2:'#3b82f6', bluedim:'rgba(37,99,235,0.1)',
-    txt:'#111827', txt2:'#6b7280', muted:'#9ca3af',
-    accent:'#2563eb', font:'Bebas Neue'
-  },
-  {
-    id: 'solarized', name: 'Solarizado', emoji: '🌅',
-    bg:'#fdf6e3', bg2:'#eee8d5', card:'#e8e1c9', border:'#d4cdb5',
-    blue:'#268bd2', blue2:'#2aa198', bluedim:'rgba(38,139,210,0.1)',
-    txt:'#073642', txt2:'#586e75', muted:'#839496',
-    accent:'#268bd2', font:'Bebas Neue'
-  },
-  {
-    id: 'neon', name: 'Neon', emoji: '⚡',
-    bg:'#050510', bg2:'#0a0a1e', card:'#0f0f28', border:'#1a1a40',
-    blue:'#00f0ff', blue2:'#80f8ff', bluedim:'rgba(0,240,255,0.1)',
-    txt:'#e0ffff', txt2:'#60c8cc', muted:'#2a4a4c',
-    accent:'#00f0ff', font:'Bebas Neue'
-  },
+{
+id: ‘dark’, name: ‘Dark’, emoji: ‘🌑’,
+bg:’#0d1117’, bg2:’#161b22’, card:’#1c2128’, border:’#30363d’,
+blue:’#4d94ff’, blue2:’#58a6ff’, bluedim:‘rgba(77,148,255,0.12)’,
+txt:’#e6edf3’, txt2:’#8b949e’, muted:’#484f58’,
+accent:’#4d94ff’, font:‘Bebas Neue’
+},
+{
+id: ‘amoled’, name: ‘AMOLED’, emoji: ‘⬛’,
+bg:’#000000’, bg2:’#0a0a0a’, card:’#111111’, border:’#222222’,
+blue:’#4d94ff’, blue2:’#58a6ff’, bluedim:‘rgba(77,148,255,0.1)’,
+txt:’#ffffff’, txt2:’#888888’, muted:’#444444’,
+accent:’#4d94ff’, font:‘Bebas Neue’
+},
+{
+id: ‘midnight’, name: ‘Midnight’, emoji: ‘🌌’,
+bg:’#0a0015’, bg2:’#12002a’, card:’#1a0035’, border:’#2d0060’,
+blue:’#a371f7’, blue2:’#c4b5fd’, bluedim:‘rgba(163,113,247,0.12)’,
+txt:’#f0e8ff’, txt2:’#9d7fcc’, muted:’#4a3570’,
+accent:’#a371f7’, font:‘Bebas Neue’
+},
+{
+id: ‘forest’, name: ‘Floresta’, emoji: ‘🌿’,
+bg:’#0a120a’, bg2:’#0f1f0f’, card:’#152415’, border:’#1e3a1e’,
+blue:’#3fb950’, blue2:’#56d364’, bluedim:‘rgba(63,185,80,0.12)’,
+txt:’#e8f5e8’, txt2:’#7db87d’, muted:’#3a5c3a’,
+accent:’#3fb950’, font:‘Bebas Neue’
+},
+{
+id: ‘fire’, name: ‘Fogo’, emoji: ‘🔥’,
+bg:’#110800’, bg2:’#1a0f00’, card:’#231500’, border:’#3d2200’,
+blue:’#ff7b00’, blue2:’#ff9a3c’, bluedim:‘rgba(255,123,0,0.12)’,
+txt:’#fff0e0’, txt2:’#cc8844’, muted:’#5c3d1a’,
+accent:’#ff7b00’, font:‘Bebas Neue’
+},
+{
+id: ‘ocean’, name: ‘Oceano’, emoji: ‘🌊’,
+bg:’#000d1a’, bg2:’#001833’, card:’#002244’, border:’#003366’,
+blue:’#2dd4bf’, blue2:’#5eead4’, bluedim:‘rgba(45,212,191,0.12)’,
+txt:’#e0f7f5’, txt2:’#6bbfb5’, muted:’#2a6b66’,
+accent:’#2dd4bf’, font:‘Bebas Neue’
+},
+{
+id: ‘rose’, name: ‘Rosa’, emoji: ‘🌸’,
+bg:’#120008’, bg2:’#1e0012’, card:’#2a001a’, border:’#440028’,
+blue:’#f472b6’, blue2:’#f9a8d4’, bluedim:‘rgba(244,114,182,0.12)’,
+txt:’#ffe8f4’, txt2:’#c47a9a’, muted:’#5c2a42’,
+accent:’#f472b6’, font:‘Bebas Neue’
+},
+{
+id: ‘light’, name: ‘Claro’, emoji: ‘☀️’,
+bg:’#f5f7fa’, bg2:’#ffffff’, card:’#ffffff’, border:’#e1e5eb’,
+blue:’#2563eb’, blue2:’#3b82f6’, bluedim:‘rgba(37,99,235,0.1)’,
+txt:’#111827’, txt2:’#6b7280’, muted:’#9ca3af’,
+accent:’#2563eb’, font:‘Bebas Neue’
+},
+{
+id: ‘solarized’, name: ‘Solarizado’, emoji: ‘🌅’,
+bg:’#fdf6e3’, bg2:’#eee8d5’, card:’#e8e1c9’, border:’#d4cdb5’,
+blue:’#268bd2’, blue2:’#2aa198’, bluedim:‘rgba(38,139,210,0.1)’,
+txt:’#073642’, txt2:’#586e75’, muted:’#839496’,
+accent:’#268bd2’, font:‘Bebas Neue’
+},
+{
+id: ‘neon’, name: ‘Neon’, emoji: ‘⚡’,
+bg:’#050510’, bg2:’#0a0a1e’, card:’#0f0f28’, border:’#1a1a40’,
+blue:’#00f0ff’, blue2:’#80f8ff’, bluedim:‘rgba(0,240,255,0.1)’,
+txt:’#e0ffff’, txt2:’#60c8cc’, muted:’#2a4a4c’,
+accent:’#00f0ff’, font:‘Bebas Neue’
+},
 ];
 
 var FONTS = [
-  { id:'Bebas Neue', name:'Bebas Neue', sample:'GYMTRACKER' },
-  { id:'Space Grotesk', name:'Space Grotesk', sample:'GymTracker' },
-  { id:'Georgia', name:'Georgia', sample:'GymTracker' },
-  { id:'Courier New', name:'Monospace', sample:'GymTracker' },
-  { id:'Impact', name:'Impact', sample:'GYMTRACKER' },
+{ id:‘Bebas Neue’, name:‘Bebas Neue’, sample:‘GYMTRACKER’ },
+{ id:‘Space Grotesk’, name:‘Space Grotesk’, sample:‘GymTracker’ },
+{ id:‘Georgia’, name:‘Georgia’, sample:‘GymTracker’ },
+{ id:‘Courier New’, name:‘Monospace’, sample:‘GymTracker’ },
+{ id:‘Impact’, name:‘Impact’, sample:‘GYMTRACKER’ },
 ];
 
 function getCurrentThemeId() {
-  return localStorage.getItem('gt_theme') || 'dark';
+return localStorage.getItem(‘gt_theme’) || ‘dark’;
 }
 
 function applyTheme(themeId) {
-  var t = THEMES.find(function(x){ return x.id === themeId; });
-  if (!t) return;
-  var root = document.documentElement;
-  root.style.setProperty('--bg', t.bg);
-  root.style.setProperty('--bg2', t.bg2);
-  root.style.setProperty('--card', t.card);
-  root.style.setProperty('--border', t.border);
-  root.style.setProperty('--blue', t.blue);
-  root.style.setProperty('--blue2', t.blue2);
-  root.style.setProperty('--bluedim', t.bluedim);
-  root.style.setProperty('--txt', t.txt);
-  root.style.setProperty('--txt2', t.txt2);
-  root.style.setProperty('--muted', t.muted);
-  localStorage.setItem('gt_theme', themeId);
+var t = THEMES.find(function(x){ return x.id === themeId; });
+if (!t) return;
+var root = document.documentElement;
+root.style.setProperty(’–bg’, t.bg);
+root.style.setProperty(’–bg2’, t.bg2);
+root.style.setProperty(’–card’, t.card);
+root.style.setProperty(’–border’, t.border);
+root.style.setProperty(’–blue’, t.blue);
+root.style.setProperty(’–blue2’, t.blue2);
+root.style.setProperty(’–bluedim’, t.bluedim);
+root.style.setProperty(’–txt’, t.txt);
+root.style.setProperty(’–txt2’, t.txt2);
+root.style.setProperty(’–muted’, t.muted);
+localStorage.setItem(‘gt_theme’, themeId);
 }
 
 function applyFont(fontId) {
-  document.documentElement.style.setProperty('--fd', "'"+fontId+"', sans-serif");
-  localStorage.setItem('gt_font', fontId);
+document.documentElement.style.setProperty(’–fd’, “’”+fontId+”’, sans-serif”);
+localStorage.setItem(‘gt_font’, fontId);
 }
 
 function applyCustomColor(variable, value) {
-  document.documentElement.style.setProperty(variable, value);
-  var custom = JSON.parse(localStorage.getItem('gt_custom_colors') || '{}');
-  custom[variable] = value;
-  localStorage.setItem('gt_custom_colors', JSON.stringify(custom));
+document.documentElement.style.setProperty(variable, value);
+var custom = JSON.parse(localStorage.getItem(‘gt_custom_colors’) || ‘{}’);
+custom[variable] = value;
+localStorage.setItem(‘gt_custom_colors’, JSON.stringify(custom));
 }
 
 function loadSavedTheme() {
-  // Apply saved theme
-  var tid = localStorage.getItem('gt_theme');
-  if (tid) applyTheme(tid);
-  // Apply saved font
-  var fid = localStorage.getItem('gt_font');
-  if (fid) applyFont(fid);
-  // Apply custom overrides
-  try {
-    var custom = JSON.parse(localStorage.getItem('gt_custom_colors') || '{}');
-    Object.entries(custom).forEach(function(e){
-      document.documentElement.style.setProperty(e[0], e[1]);
-    });
-  } catch(e) {}
+// Apply saved theme
+var tid = localStorage.getItem(‘gt_theme’);
+if (tid) applyTheme(tid);
+// Apply saved font
+var fid = localStorage.getItem(‘gt_font’);
+if (fid) applyFont(fid);
+// Apply custom overrides
+try {
+var custom = JSON.parse(localStorage.getItem(‘gt_custom_colors’) || ‘{}’);
+Object.entries(custom).forEach(function(e){
+document.documentElement.style.setProperty(e[0], e[1]);
+});
+} catch(e) {}
 }
 
 function openThemePicker() {
-  var currentId = getCurrentThemeId();
-  var currentFont = localStorage.getItem('gt_font') || 'Bebas Neue';
+var currentId = getCurrentThemeId();
+var currentFont = localStorage.getItem(‘gt_font’) || ‘Bebas Neue’;
 
-  var themeGrid = THEMES.map(function(t){
-    var active = currentId === t.id;
-    return '<button onclick="applyTheme(\''+t.id+'\');openThemePicker()" style="'
-      + 'display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;'
-      + 'border-radius:var(--r);border:2px solid '+(active?t.blue:'var(--border)')+';'
-      + 'background:'+t.bg2+';cursor:pointer;position:relative;overflow:hidden;font-family:var(--fb)">'
-      // Color preview dots
-      + '<div style="display:flex;gap:3px">'
-      + '<div style="width:14px;height:14px;border-radius:50%;background:'+t.bg+'"></div>'
-      + '<div style="width:14px;height:14px;border-radius:50%;background:'+t.blue+'"></div>'
-      + '<div style="width:14px;height:14px;border-radius:50%;background:'+t.txt+'"></div>'
-      + '</div>'
-      + '<span style="font-size:16px">'+t.emoji+'</span>'
-      + '<span style="font-size:11px;font-weight:600;color:'+t.txt2+'">'+t.name+'</span>'
-      + (active ? '<div style="position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;background:'+t.blue+';display:flex;align-items:center;justify-content:center;font-size:10px">✓</div>' : '')
-      + '</button>';
-  }).join('');
+var themeGrid = THEMES.map(function(t){
+var active = currentId === t.id;
+return ‘<button onclick="applyTheme(\''+t.id+'\');openThemePicker()" style="'
++ 'display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;'
++ 'border-radius:var(--r);border:2px solid '+(active?t.blue:'var(--border)')+';'
++ 'background:'+t.bg2+';cursor:pointer;position:relative;overflow:hidden;font-family:var(--fb)">’
+// Color preview dots
++ ‘<div style="display:flex;gap:3px">’
++ ‘<div style="width:14px;height:14px;border-radius:50%;background:'+t.bg+'"></div>’
++ ‘<div style="width:14px;height:14px;border-radius:50%;background:'+t.blue+'"></div>’
++ ‘<div style="width:14px;height:14px;border-radius:50%;background:'+t.txt+'"></div>’
++ ‘</div>’
++ ‘<span style="font-size:16px">’+t.emoji+’</span>’
++ ‘<span style="font-size:11px;font-weight:600;color:'+t.txt2+'">’+t.name+’</span>’
++ (active ? ‘<div style="position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:50%;background:'+t.blue+';display:flex;align-items:center;justify-content:center;font-size:10px">✓</div>’ : ‘’)
++ ‘</button>’;
+}).join(’’);
 
-  var fontBtns = FONTS.map(function(f){
-    var active = currentFont === f.id;
-    return '<button onclick="applyFont(\''+f.id+'\');openThemePicker()" style="'
-      + 'flex:1;padding:10px 6px;border-radius:var(--r);border:2px solid '+(active?'var(--blue)':'var(--border)')+';'
-      + 'background:'+(active?'var(--bluedim)':'var(--card)')+';cursor:pointer;font-family:var(--fb);font-size:11px;font-weight:600;color:'+(active?'var(--blue2)':'var(--txt2)')+';">'
-      + '<div style="font-family:\''+f.id+'\',sans-serif;font-size:16px;margin-bottom:2px;color:var(--txt)">'+f.sample+'</div>'
-      + f.name
-      + '</button>';
-  }).join('');
+var fontBtns = FONTS.map(function(f){
+var active = currentFont === f.id;
+return ‘<button onclick="applyFont(\''+f.id+'\');openThemePicker()" style="'
++ 'flex:1;padding:10px 6px;border-radius:var(--r);border:2px solid '+(active?'var(--blue)':'var(--border)')+';'
++ 'background:'+(active?'var(--bluedim)':'var(--card)')+';cursor:pointer;font-family:var(--fb);font-size:11px;font-weight:600;color:'+(active?'var(--blue2)':'var(--txt2)')+';">’
++ ‘<div style="font-family:\''+f.id+'\',sans-serif;font-size:16px;margin-bottom:2px;color:var(--txt)">’+f.sample+’</div>’
++ f.name
++ ‘</button>’;
+}).join(’’);
 
-  // Get current accent for custom color picker
-  var curAccent = getComputedStyle(document.documentElement).getPropertyValue('--blue').trim() || '#4d94ff';
-  var curBg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#0d1117';
-  var curCard = getComputedStyle(document.documentElement).getPropertyValue('--card').trim() || '#1c2128';
+// Get current accent for custom color picker
+var curAccent = getComputedStyle(document.documentElement).getPropertyValue(’–blue’).trim() || ‘#4d94ff’;
+var curBg = getComputedStyle(document.documentElement).getPropertyValue(’–bg’).trim() || ‘#0d1117’;
+var curCard = getComputedStyle(document.documentElement).getPropertyValue(’–card’).trim() || ‘#1c2128’;
 
-  openModal(
-    '<h2 style="font-family:var(--fd);font-size:26px;margin-bottom:4px">🎨 Personalizar Tema</h2>'
-    + '<p style="font-size:13px;color:var(--txt2);margin-bottom:16px">Escolha um tema ou crie o seu</p>'
+openModal(
+‘<h2 style="font-family:var(--fd);font-size:26px;margin-bottom:4px">🎨 Personalizar Tema</h2>’
++ ‘<p style="font-size:13px;color:var(--txt2);margin-bottom:16px">Escolha um tema ou crie o seu</p>’
 
-    + '<p class="lbl" style="margin-bottom:10px">Temas Prontos</p>'
-    + '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px">'+themeGrid+'</div>'
+```
++ '<p class="lbl" style="margin-bottom:10px">Temas Prontos</p>'
++ '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px">'+themeGrid+'</div>'
 
-    + '<p class="lbl" style="margin-bottom:10px">Fonte do Título</p>'
-    + '<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'+fontBtns+'</div>'
++ '<p class="lbl" style="margin-bottom:10px">Fonte do Título</p>'
++ '<div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap">'+fontBtns+'</div>'
 
-    + '<p class="lbl" style="margin-bottom:10px">Cores Personalizadas</p>'
-    + '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">'
++ '<p class="lbl" style="margin-bottom:10px">Cores Personalizadas</p>'
++ '<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">'
 
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border)">'
-    + '<div><div style="font-weight:600;font-size:14px">Cor de Destaque</div><div style="font-size:12px;color:var(--txt2)">Botões, links e badges</div></div>'
-    + '<input type="color" value="'+curAccent.replace(/ /g,'')+'" onchange="applyCustomColor(\'--blue\',this.value);applyCustomColor(\'--blue2\',this.value);applyCustomColor(\'--bluedim\',this.value+\'33\')" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px"/>'
-    + '</div>'
++ '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border)">'
++ '<div><div style="font-weight:600;font-size:14px">Cor de Destaque</div><div style="font-size:12px;color:var(--txt2)">Botões, links e badges</div></div>'
++ '<input type="color" value="'+curAccent.replace(/ /g,'')+'" onchange="applyCustomColor(\'--blue\',this.value);applyCustomColor(\'--blue2\',this.value);applyCustomColor(\'--bluedim\',this.value+\'33\')" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px"/>'
++ '</div>'
 
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border)">'
-    + '<div><div style="font-weight:600;font-size:14px">Fundo Principal</div><div style="font-size:12px;color:var(--txt2)">Cor de fundo da tela</div></div>'
-    + '<input type="color" value="'+curBg.replace(/ /g,'')+'" onchange="applyCustomColor(\'--bg\',this.value)" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px"/>'
-    + '</div>'
++ '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border)">'
++ '<div><div style="font-weight:600;font-size:14px">Fundo Principal</div><div style="font-size:12px;color:var(--txt2)">Cor de fundo da tela</div></div>'
++ '<input type="color" value="'+curBg.replace(/ /g,'')+'" onchange="applyCustomColor(\'--bg\',this.value)" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px"/>'
++ '</div>'
 
-    + '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border)">'
-    + '<div><div style="font-weight:600;font-size:14px">Cor dos Cards</div><div style="font-size:12px;color:var(--txt2)">Cards e painéis</div></div>'
-    + '<input type="color" value="'+curCard.replace(/ /g,'')+'" onchange="applyCustomColor(\'--card\',this.value)" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px"/>'
-    + '</div>'
++ '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg);border-radius:var(--rs);border:1px solid var(--border)">'
++ '<div><div style="font-weight:600;font-size:14px">Cor dos Cards</div><div style="font-size:12px;color:var(--txt2)">Cards e painéis</div></div>'
++ '<input type="color" value="'+curCard.replace(/ /g,'')+'" onchange="applyCustomColor(\'--card\',this.value)" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px"/>'
++ '</div>'
 
-    + '</div>'
++ '</div>'
 
-    + '<button onclick="resetTheme();closeModal()" class="btn btn-ghost" style="font-size:13px">↩ Restaurar padrão</button>'
-  );
++ '<button onclick="resetTheme();closeModal()" class="btn btn-ghost" style="font-size:13px">↩ Restaurar padrão</button>'
+```
+
+);
 }
 
 function resetTheme() {
-  localStorage.removeItem('gt_theme');
-  localStorage.removeItem('gt_font');
-  localStorage.removeItem('gt_custom_colors');
-  var root = document.documentElement;
-  // Reset all to defaults
-  ['--bg','--bg2','--card','--border','--blue','--blue2','--bluedim','--txt','--txt2','--muted','--fd'].forEach(function(v){
-    root.style.removeProperty(v);
-  });
-  toast('↩ Tema restaurado!');
+localStorage.removeItem(‘gt_theme’);
+localStorage.removeItem(‘gt_font’);
+localStorage.removeItem(‘gt_custom_colors’);
+var root = document.documentElement;
+// Reset all to defaults
+[’–bg’,’–bg2’,’–card’,’–border’,’–blue’,’–blue2’,’–bluedim’,’–txt’,’–txt2’,’–muted’,’–fd’].forEach(function(v){
+root.style.removeProperty(v);
+});
+toast(‘↩ Tema restaurado!’);
 }
 
-// Load theme on startup
-loadSavedTheme();
 </script>
+</body>
+</html>
