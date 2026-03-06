@@ -190,6 +190,13 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 <div id="toasts"></div>
 
 <script>
+// Kill any stale service workers
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+}
+
 'use strict';
 
 // ── EXERCISE IMAGE MAP ─────────────────────────────────────────────────
@@ -2210,7 +2217,11 @@ toast(‘↩ Tema restaurado!’);
 // ── BOOT ───────────────────────────────────────────────────────────────
 loadSavedTheme();
 initData();
+try {
 renderHome();
+} catch(e) {
+document.getElementById(‘home-body’).innerHTML = ‘<div style="padding:30px;color:#f85149;font-size:14px;font-family:monospace"><b>Erro ao carregar:</b><br>’ + e.message + ‘<br><br>’ + e.stack + ‘</div>’;
+}
 </script>
 
 </body>
