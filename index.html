@@ -191,35 +191,6 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 
 <script>
 
-// NUCLEAR DEBUG - bypass everything
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() {
-    var app = document.getElementById('app');
-    var homebody = document.getElementById('home-body');
-    var pgHome = document.getElementById('pg-home');
-    
-    var info = 'app=' + (app ? 'OK' : 'MISSING') + 
-               ' home-body=' + (homebody ? 'OK' : 'MISSING') +
-               ' pg-home=' + (pgHome ? 'OK' : 'MISSING');
-    
-    if (pgHome) {
-      var style = window.getComputedStyle(pgHome);
-      info += ' opacity=' + style.opacity + ' display=' + style.display + ' pointer-events=' + style.pointerEvents;
-    }
-    
-    // Force everything visible
-    document.body.style.background = 'red';
-    document.body.innerHTML = '<div style="background:white;color:black;padding:20px;font-size:16px;font-family:monospace">' +
-      '<h1 style="color:green">DEBUG</h1>' +
-      '<p>' + info + '</p>' +
-      '<p>localStorage INIT: ' + localStorage.getItem('gt_init3') + '</p>' +
-      '<p>localStorage W: ' + (localStorage.getItem('gt_w2') ? 'HAS DATA' : 'EMPTY') + '</p>' +
-      '<button onclick="localStorage.clear();location.reload()" style="padding:10px;background:red;color:white;border:none;margin-top:10px">CLEAR STORAGE + RELOAD</button>' +
-      '</div>';
-  }, 2000);
-});
-
-
 // ── EXERCISE IMAGE MAP ─────────────────────────────────────────────────
 const EXERCISE_IMGS = {};
 
@@ -540,7 +511,7 @@ function modalRmEx(wId, exId) {
     ? {...w, exercises:(w.exercises||[]).filter(e=>e.id!==exId)}
     : w
   ));
-  document.getElementById('exrow-'+exId)?.remove();
+  var _exrow=document.getElementById('exrow-'+exId);if(_exrow)_exrow.remove();
 }
 function modalAddEx(wId) {
   const ne = {id:uid(), name:'', sets:3, reps:10, weight:0};
@@ -756,7 +727,7 @@ function woCompleteSet(exId){
   const card=document.getElementById('exc-'+exId);
   if(card&&ex){const t=document.createElement('div');t.innerHTML=renderExCard(ex);card.replaceWith(t.firstElementChild);}
   woUpdateProgress();woStartRest();woCheckDone();
-  setTimeout(()=>document.getElementById('wo-rest-area')?.scrollIntoView({behavior:'smooth',block:'center'}),150);
+  setTimeout(()=>(function(){var _ra=document.getElementById('wo-rest-area');if(_ra)_ra.scrollIntoView({behavior:'smooth',block:'center'});})(),150);
 }
 
 function woStartRest(){
@@ -854,7 +825,7 @@ function woFinish(){
     feeling:WO.feeling,
     exercises:WO.workout.exercises.map(ex=>({
       name:ex.name,sets:ex.sets,completedSets:WO.sets[ex.id]||0,
-      weight:WO.data[ex.id]?.weight||0,reps:WO.data[ex.id]?.reps||ex.reps,
+      weight:(WO.data[ex.id]&&WO.data[ex.id].weight)||0,reps:(WO.data[ex.id]&&WO.data[ex.id].reps)||ex.reps,
     })),
   };
   saveSession(session);
@@ -958,7 +929,7 @@ function renderStats(){
   const counts={};
   hist.forEach(s=>(s.exercises||[]).forEach(ex=>{counts[ex.name]=(counts[ex.name]||0)+(ex.completedSets||ex.sets);}));
   const top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxC=top[0]?.[1]||1;
+  const maxC=(top[0]&&top[0][1])||1;
   const exs=Object.keys(wh);
   const year=now.getFullYear(),month=now.getMonth();
   const firstDay=new Date(year,month,1).getDay();
@@ -1028,7 +999,7 @@ function renderWeightChart(){
   const el=document.getElementById('wt-chart');if(!el)return;
   if(!data.length){el.innerHTML='';return;}
   const maxW=Math.max(...data.map(d=>d.weight||0),1);
-  const last=data[data.length-1]?.weight||0;
+  const last=(data[data.length-1]&&data[data.length-1].weight)||0;
   const best=Math.max(...data.map(d=>d.weight||0));
   el.innerHTML='<div class="card"><div style="display:flex;gap:12px;margin-bottom:16px">'
     +'<div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--blue2)">'+last+'kg</div><div style="font-size:11px;color:var(--muted)">Última</div></div>'
@@ -1171,9 +1142,9 @@ window._tFeeling=null;
 function selectTFeeling(f){window._tFeeling=f;document.querySelectorAll(’[id^=“tf-”]’).forEach(b=>b.classList.remove(‘selected’));const el=document.getElementById(‘tf-’+f);if(el)el.classList.add(‘selected’);}
 function tStep(d){const i=document.getElementById(‘t-dur’);if(i)i.value=Math.max(5,(+i.value||60)+d);}
 function saveTennis(){
-const dur=+(document.getElementById(‘t-dur’)?.value)||60;
-const notes=document.getElementById(‘t-notes’)?.value||’’;
-const date=document.getElementById(‘t-date’)?.value||new Date().toISOString().split(‘T’)[0];
+const dur=+((document.getElementById(‘t-dur’)||{}).value)||60;
+const notes=(document.getElementById(‘t-notes’)||{}).value||’’;
+const date=(document.getElementById(‘t-date’)||{}).value||new Date().toISOString().split(‘T’)[0];
 saveSession({id:uid(),type:‘tennis’,workoutName:‘Tênis 🎾’,date:new Date(date+‘T12:00:00’).toISOString(),duration:dur,notes,feeling:window._tFeeling,exercises:[]});
 toast(‘🎾 Tênis salvo!’);setTimeout(()=>showPage(‘history’),700);
 }
@@ -1221,9 +1192,9 @@ function actStep(d){const i=document.getElementById(‘act-dur’);if(i)i.value=
 function saveActivity(){
 if(!_actSelected){toast(‘Selecione uma atividade’,false);return;}
 const act=ACTIVITIES.find(a=>a.id===_actSelected);
-const dur=+(document.getElementById(‘act-dur’)?.value)||30;
-const notes=document.getElementById(‘act-notes’)?.value||’’;
-const date=document.getElementById(‘act-date’)?.value||new Date().toISOString().split(‘T’)[0];
+const dur=+((document.getElementById(‘act-dur’)||{}).value)||30;
+const notes=(document.getElementById(‘act-notes’)||{}).value||’’;
+const date=(document.getElementById(‘act-date’)||{}).value||new Date().toISOString().split(‘T’)[0];
 saveSession({id:uid(),type:‘activity’,workoutName:act.ico+’ ’+act.name,date:new Date(date+‘T12:00:00’).toISOString(),duration:dur,notes,feeling:window._aFeeling,exercises:[]});
 toast(‘🏃 Atividade salva!’);setTimeout(()=>showPage(‘history’),700);
 }
