@@ -3,7 +3,7 @@
 <html><head><meta charset="UTF-8"/></head>
 <body>
 <div id="out" style="background:white;color:black;padding:20px;font-size:16px">
-  Loading 25% of JS (317/1270 lines)...
+  Loading 50% of JS (635/1270 lines)...
 </div>
 <script>
 
@@ -322,15 +322,333 @@ saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},
 function modalRmEx(wId, exId) {
 saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},w,{exercises:(w.exercises||[]).filter(function(e){return e.id!==exId;})}) : w;}));
 var _exrow=document.getElementById(‘exrow-’+exId);if(_exrow)_exrow.remove();
+}
+function modalAddEx(wId) {
+var ne = {id:uid(), name:’’, sets:3, reps:10, weight:0};
+saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},w,{exercises:(w.exercises||[]).concat([ne])}) : w;}));
+var list = document.getElementById(‘modal-ex-list’);
+if (list) {
+var div = document.createElement(‘div’);
+div.id = ‘exrow-’+ne.id;
+div.style.cssText = ‘background:var(–bg);border:1px solid var(–border);border-radius:var(–r);padding:12px;margin-bottom:8px’;
+div.innerHTML =
+‘<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">’
++’<span style="color:var(--muted);font-size:16px;flex-shrink:0">☰</span>’
++’<input value="" list="ex-sugg-modal" placeholder="Nome do exercício" oninput="modalUpdEx(\''+wId+'\',\''+ne.id+'\',\'name\',this.value)" style="flex:1;font-weight:600;font-size:14px;padding:7px 10px" autofocus/>’
++’<button onclick="modalRmEx(\''+wId+'\',\''+ne.id+'\')" style="background:none;border:none;color:var(--red);font-size:20px;padding:4px;cursor:pointer;flex-shrink:0">✕</button>’
++’</div>’
++’<div style="display:flex;gap:8px">’
++’<div style="flex:1"><span class="lbl">Séries</span><input type="number" value="3" min="1" oninput="modalUpdEx(\''+wId+'\',\''+ne.id+'\',\'sets\',+this.value)" style="text-align:center;padding:7px 8px;font-size:15px"/></div>’
++’<div style="flex:1"><span class="lbl">Reps</span><input type="number" value="10" min="1" oninput="modalUpdEx(\''+wId+'\',\''+ne.id+'\',\'reps\',+this.value)" style="text-align:center;padding:7px 8px;font-size:15px"/></div>’
++’</div>’;
+list.appendChild(div);
+div.querySelector(‘input’).focus();
+}
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// WORKOUT STATE
+// ══════════════════════════════════════════════════════════════════════
+var WO = null;
+
+function woBegin(){
+if(!WO||WO.started)return;
+WO.started=true;
+WO.start=Date.now();
+WO.timer=setInterval(()=>{
+WO.elapsed=Math.floor((Date.now()-WO.start)/1000);
+var el=document.getElementById(‘wo-clock’);if(el)el.textContent=fmtDur(WO.elapsed);
+var bc=document.getElementById(‘banner-clock’);if(bc)bc.textContent=fmtDur(WO.elapsed);
+woUpdateProgress();
+},1000);
+renderWoHeader();
+}
+
+function startWorkout(id){
+if(WO&&WO.workout.id===id){renderWoHeader();renderWoBody();return;}
+if(WO){clearInterval(WO.timer);clearInterval(WO.restTimer);}
+var w=getWorkouts().find(x=>x.id===id);
+if(!w){showPage(‘home’);return;}
+var lw=lastWeightsMap();
+WO={
+workout:w,start:null,started:false,elapsed:0,
+timer:null,restTimer:null,restRemaining:0,restTotal:60,
+sets:{},data:{},feeling:null,
+editingExId:null,  // which exercise is in inline-edit mode
+};
+w.exercises.forEach(ex=>{
+WO.sets[ex.id]=0;
+WO.data[ex.id]={weight:lw[ex.name]||ex.weight||0,reps:ex.reps};
+});
+renderWoHeader();
+renderWoBody();
+renderMusicPlayer();
+}
+
+function stopWorkout(){
+if(WO){if(WO.timer)clearInterval(WO.timer);if(WO.restTimer)clearInterval(WO.restTimer);}
+WO=null;
+}
+
+function woTotalSets(){return WO?WO.workout.exercises.reduce((a,e)=>a+e.sets,0):0;}
+function woDoneSets(){return WO?Object.values(WO.sets).reduce((a,v)=>a+v,0):0;}
+function woUpdateProgress(){
+var tot=woTotalSets(),done=woDoneSets();
+var p=document.getElementById(‘wo-prog’);if(p)p.style.width=(tot?done/tot*100:0)+’%’;
+var l=document.getElementById(‘wo-prog-lbl’);if(l)l.textContent=done+’/’+tot+’ séries’;
+}
+
+function renderWoHeader(){
+if(!WO)return;
+document.getElementById(‘wo-hdr’).innerHTML=
+‘<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">’
++’<button onclick="showPage(\'home\')" style="background:none;border:none;color:var(--txt2);font-size:22px;padding:4px;line-height:1;cursor:pointer">←</button>’
++’<div style="flex:1;display:flex;align-items:center;gap:10px">’
++’<span style="width:36px;height:36px;border-radius:10px;background:var(--bluedim);border:1px solid rgba(77,148,255,0.3);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:24px;color:var(--blue2);flex-shrink:0">’+WO.workout.name.split(’ ‘).pop()+’</span>’
++’<span style="font-family:var(--fd);font-size:24px">’+esc(WO.workout.name)+’</span>’
++’</div>’
+// Edit workout button in header
++’<button onclick="woEditWorkout()" style="background:none;border:none;color:var(--txt2);font-size:20px;padding:4px;cursor:pointer" title="Editar treino">✏️</button>’
++(WO.started
+? ‘<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:5px 12px;font-family:var(--fd);font-size:20px;color:var(--blue2)" id="wo-clock">’+fmtDur(WO.elapsed)+’</div>’
++’<button onclick="woAskFinish()" style="background:rgba(248,81,73,0.12);border:1px solid rgba(248,81,73,0.35);border-radius:8px;padding:5px 12px;color:#f85149;font-family:var(--fb);font-size:13px;font-weight:700;cursor:pointer">⏹</button>’
+: ‘<button onclick="woBegin()" style="background:linear-gradient(135deg,#2ea043,#3fb950);border:none;border-radius:8px;padding:8px 18px;color:#fff;font-family:var(--fb);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(63,185,80,0.4)">▶ Iniciar</button>’
+)
++’</div>’
++’<div style="display:flex;align-items:center;gap:10px">’
++’<div class="prog" style="flex:1"><div class="prog-fill" id="wo-prog" style="width:0%"></div></div>’
++’<span style="font-size:12px;color:var(--muted)" id="wo-prog-lbl">0/’+woTotalSets()+’ séries</span>’
++’</div>’;
+woUpdateProgress();
+}
+
+// Edit workout from inside workout screen
+function woEditWorkout() {
+if (!WO) return;
+var wId = WO.workout.id;
+renderExerciseEditorModal(wId);
+// After modal closes, refresh the workout with updated exercises
+}
+
+function renderWoBody(){
+if(!WO)return;
+// Reload fresh workout data (in case exercises were edited)
+var freshW = getWorkouts().find(x=>x.id===WO.workout.id);
+if (freshW) {
+WO.workout = freshW;
+// Init any new exercises
+freshW.exercises.forEach(ex=>{
+if (!(ex.id in WO.sets)) WO.sets[ex.id]=0;
+if (!(ex.id in WO.data)) WO.data[ex.id]={weight:0,reps:ex.reps};
+});
+}
+
+document.getElementById(‘wo-body’).innerHTML =
+// “Edit exercises” quick bar at top of body
+‘<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)">’
++’<span style="font-size:13px;color:var(--txt2)">’+WO.workout.exercises.length+’ exercícios</span>’
++’<button onclick="woEditWorkout()" style="background:var(--bluedim);border:1px solid rgba(77,148,255,0.3);border-radius:var(--rs);padding:6px 14px;color:var(--blue2);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb)">✏️ Editar Treino</button>’
++’</div>’
++ WO.workout.exercises.map(ex=>renderExCard(ex)).join(’’)
++’<div id="wo-rest-area"></div><div id="wo-finish-area" style="margin-top:8px"></div>’;
+woCheckDone();
+}
+
+// ── EXERCISE THUMBNAIL ─────────────────────────────────────────────────
+function exThumb(name, done) {
+var url = EXERCISE_IMGS[name];
+if (!url) {
+var keys = Object.keys(EXERCISE_IMGS);
+var norm = s => s.toLowerCase().replace(/[^a-z0-9]/g,’’);
+var nameLow = norm(name);
+for (var i=0; i<keys.length; i++){
+if(norm(keys[i])===nameLow){ url=EXERCISE_IMGS[keys[i]]; break; }
+}
+}
+var html = ‘<div style="width:58px;height:58px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--bg2);position:relative">’;
+if (url) {
+html += ‘<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy"/>’;
+} else {
+html += ‘<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:26px">’+(done?‘✅’:‘💪’)+’</div>’;
+}
+if (done) {
+html += ‘<div style="position:absolute;inset:0;background:rgba(63,185,80,0.7);display:flex;align-items:center;justify-content:center;font-size:22px">✅</div>’;
+}
+html += ‘</div>’;
+return html;
+}
+
+function renderExCard(ex){
+if(!WO)return’’;
+var done=WO.sets[ex.id]>=ex.sets;
+var d=WO.data[ex.id]||{weight:0,reps:ex.reps};
+var lw=lastWeightsMap()[ex.name];
+var dots=Array.from({length:ex.sets},(_,j)=>’<div style="width:10px;height:10px;border-radius:50%;background:'+( j<WO.sets[ex.id]?'var(--green)':'var(--border)')+'"></div>’).join(’’);
+var body=done
+?’<div style="padding:0 16px 14px"><div style="background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.2);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:8px"><span>🎯</span><span style="font-size:13px;color:var(--green);font-weight:600">Concluído!</span></div></div>’
+:’<div style="padding:0 16px 14px;display:flex;flex-direction:column;gap:12px">’
++’<div style="display:flex;gap:12px">’
++’<div style="flex:1"><span class="lbl">Carga (kg)</span>’
++’<div class="ngrp"><button class="sbtn" onclick="woStep(\''+ex.id+'\',\'weight\',-2.5)">−</button>’
++’<input type="number" value="'+d.weight+'" min="0" step="0.5" oninput="woSet(\''+ex.id+'\',\'weight\',+this.value)" id="inp-w-'+ex.id+'"/>’
++’<button class="sbtn" onclick="woStep(\''+ex.id+'\',\'weight\',2.5)">+</button></div>’
++(lw>0?’<p style="font-size:11px;color:var(--muted);margin-top:3px">Última: ‘+lw+‘kg</p>’:’’)
++’</div>’
++’<div style="flex:1"><span class="lbl">Reps</span>’
++’<div class="ngrp"><button class="sbtn" onclick="woStep(\''+ex.id+'\',\'reps\',-1)">−</button>’
++’<input type="number" value="'+d.reps+'" min="1" oninput="woSet(\''+ex.id+'\',\'reps\',+this.value)" id="inp-r-'+ex.id+'"/>’
++’<button class="sbtn" onclick="woStep(\''+ex.id+'\',\'reps\',1)">+</button></div></div>’
++’</div>’
++’<button class="btn btn-blue" onclick="woCompleteSet(\''+ex.id+'\')">✓ Concluir Série ‘+(WO.sets[ex.id]+1)+’/’+ex.sets+’</button>’
++’</div>’;
+
+return ‘<div id="exc-'+ex.id+'" style="background:var(--card);border:1px solid '+(done?'var(--green)':'var(--border)')+';border-radius:var(--rl);margin-bottom:12px;overflow:hidden">’
++’<div style="padding:14px 16px;display:flex;align-items:center;gap:12px">’
++ exThumb(ex.name, done)
++’<div style="flex:1">’
++’<div style="font-weight:700;font-size:16px;color:'+(done?'var(--green)':'var(--txt)')+'">’+esc(ex.name)+’</div>’
++’<div style="font-size:13px;color:var(--txt2)">’+WO.sets[ex.id]+’/’+ex.sets+’ séries · ‘+ex.reps+’ reps</div>’
++’</div>’
++’<div style="display:flex;gap:4px">’+dots+’</div>’
++’</div>’
++ body
++’</div>’;
+}
+
+function woStep(exId,field,delta){
+if(!WO)return;
+var d=WO.data[exId]||{};
+var nv=Math.max(field===‘reps’?1:0,(parseFloat(d[field])||0)+delta);
+(function(){var _d2=Object.assign({},d);_d2[field]=nv;WO.data[exId]=_d2;})();
+var inp=document.getElementById(‘inp-’+field[0]+’-’+exId);
+if(inp)inp.value=nv;
+}
+function woSet(exId,field,val){if(!WO)return;(function(){var _d=WO.data[exId]||{};_d[field]=val;WO.data[exId]=_d;})();}
+
+function woCompleteSet(exId){
+if(!WO)return;
+if(!WO.started)woBegin();
+WO.sets[exId]=(WO.sets[exId]||0)+1;
+vib([50,30,100]);
+var ex=WO.workout.exercises.find(e=>e.id===exId);
+var card=document.getElementById(‘exc-’+exId);
+if(card&&ex){var t=document.createElement(‘div’);t.innerHTML=renderExCard(ex);card.replaceWith(t.firstElementChild);}
+woUpdateProgress();woStartRest();woCheckDone();
+setTimeout(()=>(function(){var _ra=document.getElementById(‘wo-rest-area’);if(_ra)_ra.scrollIntoView({behavior:‘smooth’,block:‘center’});})(),150);
+}
+
+function woStartRest(){
+if(!WO)return;
+clearInterval(WO.restTimer);
+WO.restRemaining=60;WO.restTotal=60;
+woRenderRest();
+WO.restTimer=setInterval(()=>{
+if(!WO)return;
+WO.restRemaining–;
+if(WO.restRemaining<=0){
+clearInterval(WO.restTimer);
+vib([200,100,200,100,300]);
+var a=document.getElementById(‘wo-rest-area’);if(a)a.innerHTML=’’;
+toast(‘⏰ Descansou! Hora de treinar!’);
+} else woUpdateRing();
+},1000);
+}
+
+function woRenderRest(){
+var el=document.getElementById(‘wo-rest-area’);if(!el||!WO)return;
+var circ=2*Math.PI*54;
+el.innerHTML=’<div style="background:var(--card);border:1px solid var(--blue);border-radius:var(--rl);box-shadow:0 0 20px rgba(77,148,255,0.12);margin-bottom:12px">’
++’<div style="padding:14px 16px;border-bottom:1px solid var(--border)"><p style="font-size:12px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em">⏸ Descanso</p></div>’
++’<div style="padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px">’
++’<div style="position:relative;width:120px;height:120px">’
++’<svg width="120" height="120" style="transform:rotate(-90deg)">’
++’<circle cx="60" cy="60" r="54" fill="none" stroke="var(--border)" stroke-width="6"/>’
++’<circle cx="60" cy="60" r="54" fill="none" stroke="var(--blue)" stroke-width="6" id="rest-ring" stroke-linecap="round" stroke-dasharray="'+circ+' '+circ+'"/>’
++’</svg>’
++’<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">’
++’<span style="font-family:var(--fd);font-size:34px;line-height:1" id="rest-num">’+WO.restRemaining+’</span>’
++’<span style="font-size:11px;color:var(--muted)">seg</span>’
++’</div></div>’
++’<div style="display:flex;gap:8px">’
++’<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(-15)">−15s</button>’
++’<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(15)">+15s</button>’
++’<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(30)">+30s</button>’
++’</div>’
++’<button class="btn btn-danger" onclick="woSkipRest()">Pular ▶</button>’
++’</div></div>’;
+woUpdateRing();
+}
+
+function woUpdateRing(){
+if(!WO)return;
+var num=document.getElementById(‘rest-num’);
+var ring=document.getElementById(‘rest-ring’);
+if(!num||!ring)return;
+num.textContent=WO.restRemaining;
+num.style.color=WO.restRemaining<=10?‘var(–orange)’:‘var(–txt)’;
+var circ=2*Math.PI*54;
+ring.setAttribute(‘stroke-dasharray’,(circ*(WO.restRemaining/WO.restTotal))+’ ‘+circ);
+ring.setAttribute(‘stroke’,WO.restRemaining<=10?‘var(–orange)’:‘var(–blue)’);
+}
+function woRestAdd(d){if(!WO)return;WO.restRemaining=Math.max(0,WO.restRemaining+d);WO.restTotal=Math.max(WO.restTotal,WO.restRemaining);woUpdateRing();}
+function woSkipRest(){if(!WO)return;clearInterval(WO.restTimer);var a=document.getElementById(‘wo-rest-area’);if(a)a.innerHTML=’’;}
+
+function woCheckDone(){
+if(!WO)return;
+var fa=document.getElementById(‘wo-finish-area’);if(!fa)return;
+var all=WO.workout.exercises.every(ex=>WO.sets[ex.id]>=ex.sets);
+if(all)fa.innerHTML=’<button class="btn btn-green pulse" onclick="woAskFinish()" style="font-size:18px;min-height:60px">🏆 Finalizar Treino</button>’;
+else if(woDoneSets()>0)fa.innerHTML=’<button class="btn btn-ghost" onclick="woAskFinish()" style="font-size:14px">Encerrar antecipado</button>’;
+else fa.innerHTML=’’;
+}
+
+function woAskFinish(){
+openModal(’<h2 style="font-family:var(--fd);font-size:26px;margin-bottom:16px">Como foi o treino?</h2>’
++’<p style="color:var(--txt2);font-size:13px;margin-bottom:14px">Duração: ‘+fmtDur(WO?WO.elapsed:0)+’ · ‘+woDoneSets()+’/’+woTotalSets()+’ séries</p>’
++’<p class="lbl" style="margin-bottom:10px">Como você se sentiu?</p>’
++’<div style="display:flex;gap:8px;margin-bottom:20px">’
++’<button class="feeling-btn" id="feel-easy"   onclick="selectFeeling(\'easy\')"  ><span class="feel-ico">😊</span>Fácil</button>’
++’<button class="feeling-btn" id="feel-medium" onclick="selectFeeling(\'medium\')"><span class="feel-ico">😤</span>Moderado</button>’
++’<button class="feeling-btn" id="feel-hard"   onclick="selectFeeling(\'hard\')"  ><span class="feel-ico">🥵</span>Difícil</button>’
++’</div>’
++’<div style="display:flex;flex-direction:column;gap:10px">’
++’<button class="btn btn-green" onclick="closeModal();woFinish()">💾 Salvar e Finalizar</button>’
++’<button class="btn btn-danger" onclick="closeModal();stopWorkout();showPage(\'home\')">🗑 Descartar</button>’
++’<button class="btn btn-ghost" onclick="closeModal()">Continuar</button>’
++’</div>’);
+}
+
+function selectFeeling(f){
+if(WO)WO.feeling=f;
+document.querySelectorAll(’.feeling-btn’).forEach(b=>b.classList.remove(‘selected’));
+var el=document.getElementById(‘feel-’+f);if(el)el.classList.add(‘selected’);
+}
+
+function woFinish(){
+if(!WO)return;
+var session={
+id:uid(),workoutId:WO.workout.id,workoutName:WO.workout.name,type:‘gym’,
+date:new Date().toISOString(),duration:Math.ceil(WO.elapsed/60),
+feeling:WO.feeling,
+exercises:WO.workout.exercises.map(ex=>({
+name:ex.name,sets:ex.sets,completedSets:WO.sets[ex.id]||0,
+weight:(WO.data[ex.id]&&WO.data[ex.id].weight)||0,reps:(WO.data[ex.id]&&WO.data[ex.id].reps)||ex.reps,
+})),
+};
+saveSession(session);
+stopWorkout();
+toast(‘🏆 Treino salvo!’);
+setTimeout(()=>showPage(‘history’),600);
+}
 // TEST
 try {
 if (typeof showPage === ‘function’) {
-document.getElementById(‘out’).textContent = ‘OK at 25% - showPage exists’;
+document.getElementById(‘out’).textContent = ‘OK at 50% - showPage exists’;
 } else {
-document.getElementById(‘out’).textContent = ‘FAIL at 25% - showPage undefined’;
+document.getElementById(‘out’).textContent = ‘FAIL at 50% - showPage undefined’;
 }
 } catch(e) {
-document.getElementById(‘out’).textContent = ’ERROR at 25%: ’ + e.message;
+document.getElementById(‘out’).textContent = ’ERROR at 50%: ’ + e.message;
 }
 </script>
 
