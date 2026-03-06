@@ -190,14 +190,6 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 <div id="toasts"></div>
 
 <script>
-// Kill any stale service workers
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(r => r.unregister());
-  });
-}
-
-'use strict';
 
 // ── EXERCISE IMAGE MAP ─────────────────────────────────────────────────
 const EXERCISE_IMGS = {};
