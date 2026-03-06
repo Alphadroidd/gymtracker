@@ -3,7 +3,7 @@
 <html><head><meta charset="UTF-8"/></head>
 <body>
 <div id="out" style="background:white;color:black;padding:20px;font-size:16px">
-  Loading 50% of JS (635/1270 lines)...
+  Loading 75% of JS (952/1270 lines)...
 </div>
 <script>
 
@@ -640,15 +640,332 @@ stopWorkout();
 toast(‘🏆 Treino salvo!’);
 setTimeout(()=>showPage(‘history’),600);
 }
+
+// ── MUSIC PLAYER ───────────────────────────────────────────────────────
+function renderMusicPlayer() {
+var saved = localStorage.getItem(‘gt_music_url’) || ‘’;
+var el = document.getElementById(‘music-player’);
+if (!el) return;
+if (!saved) {
+el.innerHTML = ‘<div style="padding:10px 14px;display:flex;align-items:center;gap:10px">’
++’<span style="font-size:18px;flex-shrink:0">🎵</span>’
++’<input id="music-url-inp" placeholder="Cole link YouTube / playlist..." style="flex:1;font-size:13px;padding:7px 10px;border-radius:8px"/>’
++’<button onclick="setMusicUrl()" style="background:var(--blue);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);flex-shrink:0">▶ Play</button>’
++’</div>’;
+return;
+}
+var embedUrl = ‘’;
+var ytList = saved.match(/[?&]list=([\w-]+)/);
+var ytVideo = saved.match(/(?:youtube.com/watch?v=|youtu.be/)([\w-]+)/);
+if (ytList) embedUrl = ‘https://www.youtube.com/embed/videoseries?list=’+ytList[1]+’&autoplay=1&rel=0’;
+else if (ytVideo) embedUrl = ‘https://www.youtube.com/embed/’+ytVideo[1]+’?autoplay=1&rel=0’;
+else embedUrl = saved;
+el.innerHTML = ‘<div>’
++’<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px">’
++’<div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">🎵</span><span style="font-size:12px;font-weight:600;color:var(--txt2)">Player de Música</span></div>’
++’<div style="display:flex;gap:8px">’
++’<button onclick="toggleMusicSize()" id="music-size-btn" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--txt2);font-size:12px;cursor:pointer;font-family:var(--fb)">⬆ Expandir</button>’
++’<button onclick="clearMusicUrl()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px">✕</button>’
++’</div></div>’
++’<div id="music-frame-wrap" style="height:0;overflow:hidden;transition:height 0.3s">’
++’<iframe src="'+embedUrl+'" style="width:100%;height:200px;border:none;display:block" allow="autoplay;encrypted-media" allowfullscreen></iframe>’
++’</div></div>’;
+}
+function toggleMusicSize(){
+var wrap=document.getElementById(‘music-frame-wrap’);
+var btn=document.getElementById(‘music-size-btn’);
+if(!wrap)return;
+if(wrap.style.height===‘0px’||wrap.style.height===‘0’){wrap.style.height=‘200px’;if(btn)btn.textContent=‘⬇ Minimizar’;}
+else{wrap.style.height=‘0’;if(btn)btn.textContent=‘⬆ Expandir’;}
+}
+function setMusicUrl(){
+var inp=document.getElementById(‘music-url-inp’);
+if(!inp||!inp.value.trim())return;
+localStorage.setItem(‘gt_music_url’,inp.value.trim());
+renderMusicPlayer();
+setTimeout(function(){toggleMusicSize();},100);
+}
+function clearMusicUrl(){localStorage.removeItem(‘gt_music_url’);renderMusicPlayer();}
+
+// ── HISTORY ────────────────────────────────────────────────────────────
+var FEELING_LABEL={easy:‘😊 Fácil’,medium:‘😤 Moderado’,hard:‘🥵 Difícil’};
+function renderHistory(){
+var hist=getHistory();
+document.getElementById(‘hist-sub’).textContent=hist.length+’ atividades registradas’;
+var el=document.getElementById(‘hist-body’);
+if(!hist.length){el.innerHTML=’<div class="empty"><div style="font-size:48px">📋</div><p>Nenhum treino ainda.</p></div>’;return;}
+el.innerHTML=hist.map(s=>’<div onclick="showPage(\'detail\',\''+s.id+'\')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid '+(s.type==='tennis'?'var(--green)':s.type==='activity'?'var(--purple)':'var(--blue2)')+';border-radius:var(--rl);padding:16px;margin-bottom:10px;cursor:pointer">’
++’<div style="display:flex;align-items:flex-start;gap:12px">’
++’<span style="font-size:28px;flex-shrink:0">’+(s.type===‘tennis’?‘🎾’:s.type===‘activity’?‘🏃’:‘🏋️’)+’</span>’
++’<div style="flex:1"><div style="font-weight:700;font-size:16px;margin-bottom:4px">’+esc(s.workoutName||‘Treino’)+’</div>’
++’<div style="font-size:13px;color:var(--txt2);margin-bottom:6px">’+fmtDate(s.date)+’ · ‘+fmtMin(s.duration||0)+(s.feeling?’ · ‘+FEELING_LABEL[s.feeling]:’’)+’</div>’
++’<div>’+(s.exercises||[]).slice(0,4).map(ex=>’<span class="badge">’+esc(ex.name)+(ex.weight>0?’ ‘+ex.weight+‘kg’:’’)+’</span>’).join(’’)+’</div>’
++(s.notes?’<p style="font-size:13px;color:var(--txt2);margin-top:6px;font-style:italic">”’+esc(s.notes)+’”</p>’:’’)
++’</div>’
++’<button onclick="event.stopPropagation();delSession(\''+s.id+'\');renderHistory()" style="background:none;border:none;color:var(--muted);font-size:18px;padding:4px;cursor:pointer">🗑</button>’
++’</div></div>’).join(’’);
+}
+
+// ── DETAIL ─────────────────────────────────────────────────────────────
+function renderDetail(id){
+var s=getHistory().find(x=>x.id===id);
+if(!s){showPage(‘history’);return;}
+document.getElementById(‘detail-hdr’).innerHTML=
+‘<button onclick="showPage(\'history\')" style="background:none;border:none;color:var(--txt2);font-size:14px;margin-bottom:8px;padding:0;cursor:pointer;font-family:var(--fb)">← Voltar</button>’
++’<div style="font-family:var(--fd);font-size:26px">’+esc(s.workoutName||‘Treino’)+’</div>’
++’<p style="font-size:13px;color:var(--txt2)">’+new Date(s.date).toLocaleDateString(‘pt-BR’,{weekday:‘long’,year:‘numeric’,month:‘long’,day:‘numeric’})+’</p>’;
+document.getElementById(‘detail-body’).innerHTML=
+‘<div style="display:grid;grid-template-columns:1fr 1fr'+(s.feeling?' 1fr':'')+';gap:10px;margin-bottom:20px">’
++’<div class="card" style="text-align:center"><div style="font-family:var(--fd);font-size:26px;color:var(--blue2)">’+fmtMin(s.duration||0)+’</div><div style="font-size:12px;color:var(--muted)">Duração</div></div>’
++’<div class="card" style="text-align:center"><div style="font-family:var(--fd);font-size:26px;color:var(--orange)">’+(s.exercises||[]).length+’</div><div style="font-size:12px;color:var(--muted)">Exercícios</div></div>’
++(s.feeling?’<div class="card" style="text-align:center"><div style="font-size:26px">’+(s.feeling===‘easy’?‘😊’:s.feeling===‘medium’?‘😤’:‘🥵’)+’</div><div style="font-size:12px;color:var(--muted)">’+(s.feeling===‘easy’?‘Fácil’:s.feeling===‘medium’?‘Moderado’:‘Difícil’)+’</div></div>’:’’)
++’</div>’
++(s.exercises||[]).map(ex=>’<div class="card" style="padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">’
++’<div><div style="font-weight:700;font-size:15px">’+esc(ex.name)+’</div><div style="font-size:13px;color:var(--txt2)">’+(ex.completedSets||ex.sets)+‘×’+ex.reps+’ reps</div></div>’
++(ex.weight>0?’<div style="text-align:right"><div style="font-family:var(--fd);font-size:22px;color:var(--blue2)">’+ex.weight+’</div><div style="font-size:11px;color:var(--muted)">kg</div></div>’:’’)
++’</div>’).join(’’)
++(s.notes?’<div class="card" style="margin-top:8px"><p style="font-size:14px;color:var(--txt2);line-height:1.6">’+esc(s.notes)+’</p></div>’:’’)
++’<button class="btn btn-ghost" onclick="showPage(\'history\')" style="margin-top:16px">← Voltar ao Histórico</button>’;
+}
+
+// ── STATS ──────────────────────────────────────────────────────────────
+function renderStats(){
+var hist=getHistory(),wk=weekStats(),wh=getWeights(),now=new Date();
+var mo=hist.filter(s=>{var d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+var totalH=hist.reduce((a,s)=>a+(s.duration||0),0);
+var counts={};
+hist.forEach(s=>(s.exercises||[]).forEach(ex=>{counts[ex.name]=(counts[ex.name]||0)+(ex.completedSets||ex.sets);}));
+var top=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+var maxC=(top[0]&&top[0][1])||1;
+var exs=Object.keys(wh);
+var year=now.getFullYear(),month=now.getMonth();
+var firstDay=new Date(year,month,1).getDay();
+var daysInMonth=new Date(year,month+1,0).getDate();
+var monthNames=[‘Janeiro’,‘Fevereiro’,‘Março’,‘Abril’,‘Maio’,‘Junho’,‘Julho’,‘Agosto’,‘Setembro’,‘Outubro’,‘Novembro’,‘Dezembro’];
+var dayMap={};
+hist.forEach(s=>{var d=new Date(s.date);if(d.getMonth()===month&&d.getFullYear()===year){var key=d.getDate();if(!dayMap[key])dayMap[key]=new Set();dayMap[key].add(s.type||‘gym’);}});
+var dayHeaders=[‘D’,‘S’,‘T’,‘Q’,‘Q’,‘S’,‘S’].map(d=>’<div style="text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:4px 0">’+d+’</div>’).join(’’);
+var calCells=Array(firstDay).fill(’<div class="cal-day empty"></div>’).join(’’);
+for(var d=1;d<=daysInMonth;d++){
+var types=dayMap[d];var isToday=d===now.getDate();
+var cls=‘cal-day’;
+if(types){if(types.size>1)cls+=’ has-multi’;else if(types.has(‘tennis’))cls+=’ has-tennis’;else if(types.has(‘activity’))cls+=’ has-activity’;else cls+=’ has-gym’;}
+if(isToday)cls+=’ today’;
+calCells+=’<div class="'+cls+'">’+d+’</div>’;
+}
+var feelingStats={easy:0,medium:0,hard:0};
+hist.filter(s=>s.feeling).forEach(s=>feelingStats[s.feeling]++);
+var totalFeelings=Object.values(feelingStats).reduce((a,v)=>a+v,0);
+var el=document.getElementById(‘stats-body’);
+el.innerHTML=
+‘<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">’
++[[‘📅’,‘Semana’,wk.n,‘treinos’,‘var(–blue2)’],[‘⏱️’,‘Semana’,fmtMin(wk.mins),’’,‘var(–orange)’],[‘📆’,‘Este mês’,mo.length,‘treinos’,‘var(–green)’],[‘🏆’,‘Total’,Math.round(totalH/60*10)/10,‘h’,‘var(–purple)’]].map(([ico,lbl,val,unit,color])=>
+‘<div class="card" style="text-align:center;padding:16px"><div style="font-size:22px;margin-bottom:4px">’+ico+’</div><div style="font-family:var(--fd);font-size:26px;color:'+color+'">’+val+(unit?’<span style="font-size:16px"> ‘+unit+’</span>’:’’)+’</div><div style="font-size:11px;color:var(--muted);margin-top:4px">’+lbl+’</div></div>’
+).join(’’)+’</div>’
++’<p class="lbl" style="margin-bottom:8px">Calendário — ‘+monthNames[month]+’ ‘+year+’</p>’
++’<div class="card" style="margin-bottom:8px">’
++’<div class="cal-grid">’+dayHeaders+’</div>’
++’<div class="cal-grid">’+calCells+’</div>’
++’<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--txt2)">’
++’<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(77,148,255,0.3);margin-right:4px"></span>Musculação</span>’
++’<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(63,185,80,0.3);margin-right:4px"></span>Tênis</span>’
++’<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(163,113,247,0.3);margin-right:4px"></span>Atividade</span>’
++’</div></div>’
++(totalFeelings>0
+?’<p class="lbl" style="margin-bottom:8px;margin-top:16px">Como você tem se sentido</p>’
++’<div class="card" style="margin-bottom:20px;display:flex;gap:0">’
++[[‘easy’,‘😊’,‘Fácil’,‘var(–green)’],[‘medium’,‘😤’,‘Moderado’,‘var(–orange)’],[‘hard’,‘🥵’,‘Difícil’,‘var(–red)’]].map(([k,ico,lbl,color])=>
+‘<div style="flex:1;text-align:center;padding:12px 4px;border-right:1px solid var(--border)">’
++’<div style="font-size:22px">’+ico+’</div>’
++’<div style="font-family:var(--fd);font-size:22px;color:'+color+'">’+feelingStats[k]+’</div>’
++’<div style="font-size:11px;color:var(--muted)">’+lbl+’</div></div>’
+).join(’’)+’</div>’
+:’’)
++(top.length
+?’<p class="lbl" style="margin-bottom:12px;margin-top:4px">Mais Realizados</p>’
++’<div class="card" style="margin-bottom:20px">’+top.map(([n,c],i)=>
+‘<div style="margin-bottom:'+(i<top.length-1?'12px':'0')+'">’
++’<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px;font-weight:600">’+esc(n)+’</span><span style="font-size:13px;color:var(--muted)">’+c+’ séries</span></div>’
++’<div class="prog"><div class="prog-fill" style="width:'+c/maxC*100+'%"></div></div>’
++’</div>’
+).join(’’)+’</div>’
+:’’)
++(exs.length
+?’<p class="lbl" style="margin-bottom:12px">Evolução de Carga</p>’
++’<select id="sel-ex" onchange="renderWeightChart()" style="margin-bottom:12px">’+exs.map(e=>’<option value="'+esc(e)+'">’+esc(e)+’</option>’).join(’’)+’</select>’
++’<div id="wt-chart"></div>’
+:’’)
++(!hist.length?’<div class="empty"><div style="font-size:48px">📊</div><p>Complete treinos para ver estatísticas!</p></div>’:’’);
+if(exs.length)renderWeightChart();
+}
+
+function renderWeightChart(){
+var sel=document.getElementById(‘sel-ex’);if(!sel)return;
+var name=sel.value,wh=getWeights();
+var data=(wh[name]||[]).slice(-10);
+var el=document.getElementById(‘wt-chart’);if(!el)return;
+if(!data.length){el.innerHTML=’’;return;}
+var maxW=Math.max(…data.map(d=>d.weight||0),1);
+var last=(data[data.length-1]&&data[data.length-1].weight)||0;
+var best=Math.max(…data.map(d=>d.weight||0));
+el.innerHTML=’<div class="card"><div style="display:flex;gap:12px;margin-bottom:16px">’
++’<div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--blue2)">’+last+‘kg</div><div style="font-size:11px;color:var(--muted)">Última</div></div>’
++’<div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--orange)">’+best+‘kg</div><div style="font-size:11px;color:var(--muted)">Melhor</div></div>’
++’</div>’
++(data.length>1?’<div style="display:flex;align-items:flex-end;gap:4px;height:80px">’+data.map((d,i)=>’<div style="flex:1;height:100%;display:flex;align-items:flex-end"><div style="width:100%;height:'+(d.weight||0)/maxW*100+'%;background:'+(i===data.length-1?'linear-gradient(180deg,var(--blue),var(--bluedim))':'var(--border)')+';border-radius:3px 3px 0 0"></div></div>’).join(’’)+’</div>’:’’)
++’</div>’;
+}
+
+// ── WATER ──────────────────────────────────────────────────────────────
+function renderWater(){
+var ml=getWaterToday(),meta=getWaterMeta();
+var pct=Math.min(100,Math.round(ml/meta*100));
+var cups=Math.ceil(meta/250);
+var filled=Math.round(ml/250);
+document.getElementById(‘water-sub’).textContent=ml+‘ml de ‘+meta+‘ml — ‘+pct+’%’;
+var drops=Array.from({length:cups},(_,i)=>’<div class="drop '+(i<filled?'filled':'')+'" onclick="addWater(250);renderWater()">💧</div>’).join(’’);
+var quickBtns=[150,200,250,350,500].map(v=>’<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:13px" onclick="addWater('+v+');renderWater()">+’+v+‘ml</button>’).join(’’);
+document.getElementById(‘water-body’).innerHTML=
+‘<div class="card" style="text-align:center;padding:24px;margin-bottom:16px">’
++’<div style="font-family:var(--fd);font-size:52px;color:var(--teal);line-height:1">’+ml+’<span style="font-size:24px">ml</span></div>’
++’<div style="font-size:14px;color:var(--txt2);margin:6px 0 16px">Meta: ‘+meta+‘ml · ‘+pct+’%</div>’
++’<div class="prog" style="height:8px;margin-bottom:8px"><div class="prog-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--teal),#06b6d4)"></div></div>’
++(pct>=100?’<p style="font-size:13px;color:var(--teal);font-weight:600;margin-top:8px">🎉 Meta atingida!</p>’:’’)
++’</div>’
++’<p class="lbl" style="margin-bottom:10px">Copos de 250ml</p>’
++’<div class="water-drops" style="margin-bottom:20px">’+drops+’</div>’
++’<p class="lbl" style="margin-bottom:10px">Adicionar</p>’
++’<div style="display:flex;gap:8px;margin-bottom:16px">’+quickBtns+’</div>’
++’<div style="display:flex;gap:8px;margin-bottom:24px">’
++’<input type="number" id="water-custom" placeholder="Outro valor (ml)" style="flex:1"/>’
++’<button class="btn btn-blue" style="width:auto;padding:10px 16px;min-height:44px" onclick="var v=+document.getElementById(\'water-custom\').value;if(v>0){addWater(v);renderWater();}">Adicionar</button>’
++’</div>’
++’<p class="lbl" style="margin-bottom:10px">Meta diária</p>’
++’<div style="display:flex;gap:8px;margin-bottom:8px">’
++[1500,2000,2500,3000,3500].map(v=>’<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:12px;'+(meta===v?'border-color:var(--blue);color:var(--blue2)':'')+'" onclick="setWaterMeta('+v+');renderWater()">’+v+‘ml</button>’).join(’’)
++’</div>’
++’<button class="btn btn-danger" style="margin-top:12px" onclick="var w=ls(KEYS.WATER)||{};w[getTodayKey()]=0;lss(KEYS.WATER,w);renderWater()">🔄 Resetar hoje</button>’;
+}
+
+// ── FOOD ───────────────────────────────────────────────────────────────
+var MEAL_NAMES={breakfast:‘☀️ Café da Manhã’,lunch:‘🌤️ Almoço’,snack:‘🍎 Lanche’,dinner:‘🌙 Jantar’};
+var FOOD_SUGGESTIONS={
+breakfast:[‘Ovos mexidos com torrada integral’,‘Iogurte grego com granola e frutas’,‘Tapioca com queijo e presunto’,‘Aveia com banana e mel’,‘Vitamina de frutas com whey’,‘Pão integral com pasta de amendoim’],
+lunch:[‘Arroz integral, feijão e frango grelhado’,‘Salada de quinoa com legumes’,‘Macarrão integral ao molho de tomate’,‘Peixe assado com legumes’,‘Bowl de proteína com arroz e vegetais’,‘Frango ao curry com arroz basmati’],
+snack:[‘Frutas variadas’,‘Castanhas e amêndoas’,‘Iogurte natural’,‘Barra de cereal integral’,‘Maçã com pasta de amendoim’,‘Hummus com cenoura’],
+dinner:[‘Sopa de legumes com frango’,‘Omelete com vegetais’,‘Filé de peixe grelhado com salada’,‘Frango com brócolis no vapor’,‘Carne magra com batata doce’,‘Wrap integral com atum’],
+};
+
+function renderFood(){
+var today=getFoodToday();
+var meals=[‘breakfast’,‘lunch’,‘snack’,‘dinner’];
+var mealCards=meals.map(meal=>{
+var items=today[meal]||[];
+var itemsHtml=items.length
+?items.map((item,i)=>’<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">’
++’<span style="flex:1;font-size:14px">’+esc(item)+’</span>’
++’<button onclick="removeFoodItem(\''+meal+'\','+i+')" style="background:none;border:none;color:var(--muted);font-size:16px;padding:2px;cursor:pointer">✕</button>’
++’</div>’).join(’’)
+:’<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhum item registrado</p>’;
+var suggestions=FOOD_SUGGESTIONS[meal].slice(0,3).map(s=>’<button onclick=“addFoodItem('’+meal+’','’+s.replace(/’/g,”\’”)+’')” style=“background:var(–bg);border:1px solid var(–border);border-radius:var(–rs);padding:7px 10px;font-size:12px;color:var(–txt2);cursor:pointer;text-align:left;font-family:var(–fb)”>’+s+’</button>’).join(’’);
+return ‘<div class="meal-card">’
++’<div class="meal-hdr" onclick="toggleMeal(\''+meal+'\')">’
++’<div style="display:flex;align-items:center;gap:10px">’
++’<span style="font-size:18px">’+MEAL_NAMES[meal].split(’ ‘)[0]+’</span>’
++’<div><div style="font-weight:700;font-size:15px">’+MEAL_NAMES[meal].slice(2)+’</div>’
++’<div style="font-size:12px;color:var(--muted)">’+items.length+’ item’+(items.length!==1?‘s’:’’)+’</div></div></div>’
++’<span style="color:var(--muted)" id="arrow-'+meal+'">▼</span></div>’
++’<div class="meal-body" id="meal-'+meal+'">’
++ itemsHtml
++’<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:10px">’
++’<input id="food-input-'+meal+'" placeholder="Adicionar alimento..." style="flex:1;font-size:14px;padding:8px 10px"/>’
++’<button class="btn btn-blue" style="width:auto;padding:8px 14px;min-height:38px;font-size:13px" onclick="addFoodFromInput(\''+meal+'\')">+ Add</button>’
++’</div>’
++’<p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Sugestões</p>’
++’<div style="display:flex;flex-direction:column;gap:6px">’+suggestions+’</div>’
++’<button onclick="showAllSuggestions(\''+meal+'\')" style="background:none;border:none;color:var(--blue2);font-size:13px;cursor:pointer;padding:8px 0;font-family:var(--fb)">Ver mais →</button>’
++’</div></div>’;
+}).join(’’);
+document.getElementById(‘food-body’).innerHTML=
+‘<p style="font-size:13px;color:var(--txt2);margin-bottom:16px">📅 ‘+new Date().toLocaleDateString(‘pt-BR’,{weekday:‘long’,day:‘numeric’,month:‘long’})+’</p>’
++ mealCards;
+}
+function toggleMeal(meal){
+var body=document.getElementById(‘meal-’+meal);
+var arrow=document.getElementById(‘arrow-’+meal);
+if(!body)return;
+var open=body.classList.contains(‘open’);
+body.classList.toggle(‘open’);
+if(arrow)arrow.textContent=open?‘▼’:‘▲’;
+}
+function addFoodFromInput(meal){
+var inp=document.getElementById(‘food-input-’+meal);
+if(!inp||!inp.value.trim())return;
+addFoodItem(meal,inp.value.trim());
+inp.value=’’;renderFood();
+setTimeout(()=>toggleMeal(meal),50);
+}
+function addFoodItem(meal,item){
+var today=getFoodToday();
+today[meal]=(today[meal]||[]).concat([item]);
+saveFoodToday(today);renderFood();
+}
+function removeFoodItem(meal,idx){
+var today=getFoodToday();
+today[meal]=(today[meal]||[]).filter((_,i)=>i!==idx);
+saveFoodToday(today);renderFood();
+}
+function showAllSuggestions(meal){
+var suggs=FOOD_SUGGESTIONS[meal];
+openModal(’<h3 style="font-family:var(--fd);font-size:22px;margin-bottom:16px">Sugestões — ‘+MEAL_NAMES[meal].slice(2)+’</h3>’
++’<div style="display:flex;flex-direction:column;gap:8px">’
++suggs.map(s=>’<button onclick=“addFoodItem('’+meal+’','’+s.replace(/’/g,”\’”)+’');closeModal()” style=“background:var(–card);border:1px solid var(–border);border-radius:var(–r);padding:12px 14px;font-size:14px;color:var(–txt);cursor:pointer;text-align:left;font-family:var(–fb)”>’+s+’</button>’).join(’’)
++’</div>’);
+}
+
+// ── TENNIS ─────────────────────────────────────────────────────────────
+function renderTennis(){
+document.getElementById(‘tennis-body’).innerHTML=
+‘<div style="display:flex;flex-direction:column;gap:16px">’
++’<div><span class="lbl">Data</span><input type="date" id="t-date" value="'+new Date().toISOString().split('T')[0]+'"/></div>’
++’<div><span class="lbl">Duração (minutos)</span>’
++’<div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="tStep(-15)">−</button><input type="number" id="t-dur" value="60" min="1"/><button class="sbtn" onclick="tStep(15)">+</button></div>’
++’<div style="display:flex;gap:8px">’+[30,45,60,90,120].map(t=>’<button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById(\'t-dur\').value='+t+'">’+t+‘min</button>’).join(’’)+’</div></div>’
++’<div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi?" rows="3" style="resize:vertical"></textarea></div>’
++’<div><span class="lbl">Como você se sentiu?</span>’
++’<div style="display:flex;gap:8px">’
++’<button class="feeling-btn" id="tf-easy"   onclick="selectTFeeling(\'easy\')"  ><span class="feel-ico">😊</span>Fácil</button>’
++’<button class="feeling-btn" id="tf-medium" onclick="selectTFeeling(\'medium\')"><span class="feel-ico">😤</span>Moderado</button>’
++’<button class="feeling-btn" id="tf-hard"   onclick="selectTFeeling(\'hard\')"  ><span class="feel-ico">🥵</span>Difícil</button>’
++’</div></div>’
++’<button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Tênis</button>’
++’</div>’;
+window._tFeeling=null;
+}
+function selectTFeeling(f){window._tFeeling=f;document.querySelectorAll(’[id^=“tf-”]’).forEach(b=>b.classList.remove(‘selected’));var el=document.getElementById(‘tf-’+f);if(el)el.classList.add(‘selected’);}
+function tStep(d){var i=document.getElementById(‘t-dur’);if(i)i.value=Math.max(5,(+i.value||60)+d);}
+function saveTennis(){
+var dur=+((document.getElementById(‘t-dur’)||{}).value)||60;
+var notes=(document.getElementById(‘t-notes’)||{}).value||’’;
+var date=(document.getElementById(‘t-date’)||{}).value||new Date().toISOString().split(‘T’)[0];
+saveSession({id:uid(),type:‘tennis’,workoutName:‘Tênis 🎾’,date:new Date(date+‘T12:00:00’).toISOString(),duration:dur,notes,feeling:window._tFeeling,exercises:[]});
+toast(‘🎾 Tênis salvo!’);setTimeout(()=>showPage(‘history’),700);
+}
+
+// ── ACTIVITIES ─────────────────────────────────────────────────────────
+var ACTIVITIES=[
+{id:‘run’,name:‘Corrida’,ico:‘🏃’},{id:‘bike’,name:‘Ciclismo’,ico:‘🚴’},{id:‘swim’,name:‘Natação’,ico:‘🏊’},{id:‘yoga’,name:‘Yoga’,ico:‘🧘’},
+{id:‘walk’,name:‘Caminhada’,ico:‘🚶’},{id:‘dance’,name:‘Dança’,ico:‘💃’},{id:‘jump’,name:‘Pular Corda’,ico:‘⚡’},{id:‘hiit’,name:‘HIIT’,ico:‘🔥’},
+{id:‘pilates’,name:‘Pilates’,ico:‘🤸’},{id:‘box’,name:‘Boxe’,ico:‘🥊’},{id:‘skate’,name:‘Skate’,ico:‘🛹’},{id:‘surf’,name:‘Surf’,ico:‘🏄’},
 // TEST
 try {
 if (typeof showPage === ‘function’) {
-document.getElementById(‘out’).textContent = ‘OK at 50% - showPage exists’;
+document.getElementById(‘out’).textContent = ‘OK at 75% - showPage exists’;
 } else {
-document.getElementById(‘out’).textContent = ‘FAIL at 50% - showPage undefined’;
+document.getElementById(‘out’).textContent = ‘FAIL at 75% - showPage undefined’;
 }
 } catch(e) {
-document.getElementById(‘out’).textContent = ’ERROR at 50%: ’ + e.message;
+document.getElementById(‘out’).textContent = ’ERROR at 75%: ’ + e.message;
 }
 </script>
 
