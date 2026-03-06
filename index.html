@@ -1186,9 +1186,21 @@ r.readAsText(f);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────
+try {
 loadSavedTheme();
+} catch(e) {
+document.getElementById(‘home-body’).innerHTML = ‘<div style="padding:20px;color:red;font-family:monospace;font-size:12px">loadSavedTheme ERROR:<br>’+e.message+’<br>’+e.stack+’</div>’;
+}
+try {
 initData();
+} catch(e) {
+document.getElementById(‘home-body’).innerHTML = ‘<div style="padding:20px;color:red;font-family:monospace;font-size:12px">initData ERROR:<br>’+e.message+’<br>’+e.stack+’</div>’;
+}
+try {
 renderHome();
+} catch(e) {
+document.getElementById(‘home-body’).innerHTML = ‘<div style="padding:20px;color:red;font-family:monospace;font-size:12px">renderHome ERROR:<br>’+e.message+’<br><br>’+e.stack+’</div>’;
+}
 
 // ══════════════════════════════════════════════════════════════════════
 // PROFILE
