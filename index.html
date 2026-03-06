@@ -198,7 +198,7 @@ if ('serviceWorker' in navigator) {
 }
 
 // Load exercise images async so they don't block app startup
-fetch('exercise_imgs.json')
+fetch('exercise imgs.json')
   .then(r => r.json())
   .then(data => {
     Object.assign(EXERCISE_IMGS, data);
