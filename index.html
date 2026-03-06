@@ -1,15 +1,337 @@
 <!DOCTYPE html>
 
-<html>
-<head><meta charset="UTF-8"/></head>
+<html><head><meta charset="UTF-8"/></head>
 <body>
-<button onclick="showPage('test')">Click me</button>
-<div id="out">waiting...</div>
+<div id="out" style="background:white;color:black;padding:20px;font-size:16px">
+  Loading 25% of JS (317/1270 lines)...
+</div>
 <script>
-function showPage(name) {
-  document.getElementById('out').textContent = 'showPage works! arg=' + name;
+
+// ── EXERCISE IMAGE MAP ─────────────────────────────────────────────────
+var EXERCISE_IMGS = {};
+
+// ── DATA ───────────────────────────────────────────────────────────────
+var KEYS = {W:‘gt_w2’,H:‘gt_h2’,WH:‘gt_wh2’,INIT:‘gt_init3’,WATER:‘gt_water’,WATERMETA:‘gt_watermeta’,FOOD:‘gt_food’};
+
+var DEFAULTS = [
+{id:‘wa’,name:‘Treino A’,exercises:[
+{id:‘e1’,name:‘Lat Pulldown’,sets:3,reps:10,weight:0},
+{id:‘e2’,name:‘Leg Extension’,sets:3,reps:10,weight:0},
+{id:‘e3’,name:‘Hip Adductor’,sets:3,reps:10,weight:0},
+{id:‘e4’,name:‘Tríceps na Corda’,sets:3,reps:10,weight:0},
+{id:‘e5’,name:‘Bíceps Curl’,sets:3,reps:10,weight:0},
+{id:‘e6’,name:‘Abdominal’,sets:3,reps:15,weight:0},
+]},
+{id:‘wb’,name:‘Treino B’,exercises:[
+{id:‘e7’,name:‘Leg Press’,sets:3,reps:10,weight:0},
+{id:‘e8’,name:‘Seated Leg Curl’,sets:3,reps:10,weight:0},
+{id:‘e9’,name:‘Hip Abductor’,sets:3,reps:10,weight:0},
+{id:‘e10’,name:‘Chest Press’,sets:3,reps:10,weight:0},
+{id:‘e11’,name:‘Abdominal’,sets:3,reps:15,weight:0},
+]},
+];
+
+function ls(k){try{return JSON.parse(localStorage.getItem(k)||‘null’)}catch{return null}}
+function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
+
+function initData(){
+if(!localStorage.getItem(KEYS.INIT)){
+lss(KEYS.W,DEFAULTS);lss(KEYS.H,[]);lss(KEYS.WH,{});
+lss(KEYS.WATER,{});lss(KEYS.WATERMETA,2500);lss(KEYS.FOOD,{});
+localStorage.setItem(KEYS.INIT,‘1’);
 }
-showPage('boot');
+}
+var getWorkouts=()=>ls(KEYS.W)||[];
+var saveWorkouts=v=>lss(KEYS.W,v);
+var getHistory=()=>ls(KEYS.H)||[];
+var getWeights=()=>ls(KEYS.WH)||{};
+
+function saveSession(s){
+var h=getHistory();h.unshift(s);lss(KEYS.H,h);
+var wh=getWeights();
+(s.exercises||[]).forEach(ex=>{
+if(!wh[ex.name])wh[ex.name]=[];
+wh[ex.name].push({date:s.date,weight:ex.weight,reps:ex.reps});
+});
+lss(KEYS.WH,wh);
+}
+function delSession(id){lss(KEYS.H,getHistory().filter(s=>s.id!==id));}
+function weekStats(){
+var h=getHistory(),now=new Date();
+var ws=new Date(now);ws.setDate(now.getDate()-now.getDay());ws.setHours(0,0,0,0);
+var sess=h.filter(s=>new Date(s.date)>=ws);
+return{n:sess.length,mins:sess.reduce((a,s)=>a+(s.duration||0),0)};
+}
+function lastWeightsMap(){
+var lw={};
+getHistory().forEach(s=>(s.exercises||[]).forEach(ex=>{if(!(ex.name in lw))lw[ex.name]=ex.weight;}));
+return lw;
+}
+function getTodayKey(){return new Date().toISOString().split(‘T’)[0];}
+function getWaterToday(){var w=ls(KEYS.WATER)||{};return w[getTodayKey()]||0;}
+function addWater(ml){var w=ls(KEYS.WATER)||{};var k=getTodayKey();w[k]=(w[k]||0)+ml;lss(KEYS.WATER,w);}
+function setWaterMeta(ml){lss(KEYS.WATERMETA,ml);}
+function getWaterMeta(){return ls(KEYS.WATERMETA)||2500;}
+function getFoodToday(){var f=ls(KEYS.FOOD)||{};return f[getTodayKey()]||{breakfast:[],lunch:[],snack:[],dinner:[]};}
+function saveFoodToday(data){var f=ls(KEYS.FOOD)||{};f[getTodayKey()]=data;lss(KEYS.FOOD,f);}
+
+// ── UTILS ──────────────────────────────────────────────────────────────
+function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
+function vib(p){if(navigator.vibrate)navigator.vibrate(p||[80]);}
+function esc(s){return String(s||’’).replace(/&/g,’&’).replace(/</g,’<’).replace(/>/g,’>’).replace(/”/g,’"’);}
+function fmtDur(s){var h=~(s/3600),m=~(s%3600/60),ss=s%60;return h?h+‘h ‘+m+‘m’:m?m+‘m ‘+ss+‘s’:ss+‘s’;}
+function fmtMin(m){return m<60?m+‘min’:~(m/60)+‘h’+(m%60?’ ‘+m%60+‘min’:’’);}
+function fmtDate(d){
+var date=new Date(d),now=new Date(),days=~((now-date)/86400000);
+if(days===0)return’Hoje’;if(days===1)return’Ontem’;if(days<7)return days+’ dias atrás’;
+return date.toLocaleDateString(‘pt-BR’,{day:‘2-digit’,month:‘short’});
+}
+function toast(msg,ok){
+var el=document.createElement(‘div’);
+el.className=’toast ’+(ok===false?‘t-info’:‘t-ok’);
+el.textContent=msg;
+document.getElementById(‘toasts’).appendChild(el);
+setTimeout(()=>el.remove(),3000);
+}
+function openModal(html){document.getElementById(‘modal-body’).innerHTML=html;document.getElementById(‘modal’).style.display=‘flex’;}
+function closeModal(){document.getElementById(‘modal’).style.display=‘none’;}
+
+// ── NAVIGATION ─────────────────────────────────────────────────────────
+var NAV_PAGES=[‘home’,‘history’,‘stats’,‘workouts’,‘water’,‘food’,‘suggest’,‘profile’];
+function showPage(name,data){
+document.querySelectorAll(’.pg’).forEach(p=>p.classList.remove(‘show’));
+document.querySelectorAll(’.ntab’).forEach(b=>b.classList.remove(‘on’));
+document.getElementById(‘nav’).style.display=‘flex’;
+var pg=document.getElementById(‘pg-’+name);
+if(!pg)return;
+pg.classList.add(‘show’);
+if(NAV_PAGES.includes(name)){
+var t=document.getElementById(‘ntab-’+name);
+if(t)t.classList.add(‘on’);
+} else {
+document.getElementById(‘nav’).style.display=‘none’;
+}
+if(name===‘home’)renderHome();
+else if(name===‘history’)renderHistory();
+else if(name===‘stats’)renderStats();
+else if(name===‘workouts’)renderWorkouts();
+else if(name===‘workout’)startWorkout(data);
+else if(name===‘tennis’)renderTennis();
+else if(name===‘activity’)renderActivity();
+else if(name===‘detail’)renderDetail(data);
+else if(name===‘water’)renderWater();
+else if(name===‘food’)renderFood();
+else if(name===‘suggest’)renderSuggest();
+else if(name===‘profile’)renderProfile();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// HOME — com gerenciamento inline de treinos
+// ══════════════════════════════════════════════════════════════════════
+
+// State: are we in edit mode on home?
+var homeEditMode = false;
+
+function renderHome(){
+var workouts = getWorkouts();
+var wk = weekStats();
+var hist = getHistory().slice(0,3);
+var colors = [
+{bg:‘rgba(77,148,255,0.1)’,bd:‘rgba(77,148,255,0.3)’,ic:‘rgba(77,148,255,0.15)’,tx:’#58a6ff’},
+{bg:‘rgba(255,123,0,0.1)’,  bd:‘rgba(255,123,0,0.3)’, ic:‘rgba(255,123,0,0.15)’, tx:’#ff9a3c’},
+{bg:‘rgba(163,113,247,0.1)’,bd:‘rgba(163,113,247,0.3)’,ic:‘rgba(163,113,247,0.15)’,tx:’#c4b5fd’},
+{bg:‘rgba(63,185,80,0.1)’, bd:‘rgba(63,185,80,0.3)’, ic:‘rgba(63,185,80,0.15)’, tx:’#4ade80’},
+];
+
+// Live banner
+var liveBanner = WO
+? ‘<div onclick="showPage(\'workout\',\''+WO.workout.id+'\')" style="margin:0 20px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(77,148,255,0.15),rgba(255,123,0,0.1));border:1px solid rgba(77,148,255,0.4);border-radius:var(--r);display:flex;align-items:center;gap:12px;cursor:pointer">’
++’<div class="pulse" style="width:44px;height:44px;border-radius:10px;background:rgba(77,148,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">’+(WO.started?‘▶️’:‘⏸’)+’</div>’
++’<div style="flex:1"><div style="font-weight:700;color:var(--blue2);font-size:15px">Treino ‘+(WO.started?‘em andamento’:‘pronto para iniciar’)+’</div>’
++’<div style="font-size:13px;color:var(--txt2)">’+esc(WO.workout.name)+’ · <span id="banner-clock">’+(WO.started?fmtDur(WO.elapsed):‘Aguardando’)+’</span></div></div>’
++’<span style="color:var(--blue2);font-size:20px">›</span></div>’
+: ‘’;
+
+// Workout cards
+var wBtns = ‘’;
+workouts.forEach((w,i) => {
+var c = colors[i % colors.length];
+var alive = WO && WO.workout.id === w.id;
+if (homeEditMode) {
+wBtns += ‘<div style="background:'+c.bg+';border:2px dashed '+c.bd+';border-radius:20px;padding:14px 16px;margin-bottom:10px">’
+// Name editable
++’<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">’
++’<span style="width:48px;height:48px;border-radius:14px;background:'+c.ic+';border:1px solid '+c.bd+';display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:28px;color:'+c.tx+';flex-shrink:0">’+esc(w.name.split(’ ‘).pop())+’</span>’
++’<input value="'+esc(w.name)+'" oninput="homeRenameWorkout(\''+w.id+'\',this.value)" style="flex:1;font-weight:700;font-size:16px;border-radius:var(--rs);padding:8px 10px"/>’
++’</div>’
+// Action row
++’<div style="display:flex;gap:6px;flex-wrap:wrap">’
++’<button onclick="showPage(\'workout\',\''+w.id+'\')" style="flex:1;min-width:80px;padding:9px 8px;border-radius:var(--r);border:1px solid '+c.bd+';background:'+c.ic+';color:'+c.tx+';font-size:13px;font-weight:700">▶ Treinar</button>’
++’<button onclick="homeEditExercises(\''+w.id+'\')" style="flex:1;min-width:80px;padding:9px 8px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);color:var(--txt2);font-size:13px;font-weight:700">✏️ Exercícios</button>’
++’<button onclick="homeDupWorkout(\''+w.id+'\')" style="padding:9px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);color:var(--txt2);font-size:13px;font-weight:700">📋</button>’
++’<button onclick="homeDelWorkout(\''+w.id+'\')" style="padding:9px 12px;border-radius:var(--r);border:1px solid rgba(248,81,73,0.3);background:rgba(248,81,73,0.08);color:var(--red);font-size:13px;font-weight:700">🗑</button>’
++’</div></div>’;
+} else {
+wBtns += ‘<button onclick="showPage(\'workout\',\''+w.id+'\')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid '+c.bd+';background:'+c.bg+';color:var(--txt);width:100%;margin-bottom:10px;font-family:var(--fb);cursor:pointer;text-align:left">’
++’<span style="width:52px;height:52px;border-radius:14px;background:'+c.ic+';border:1px solid '+c.bd+';display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:30px;font-weight:900;color:'+c.tx+';flex-shrink:0;letter-spacing:-1px">’+esc(w.name.split(’ ‘).pop())+’</span>’
++’<div style="flex:1"><div style="font-weight:700;font-size:17px">’+esc(w.name)+(alive?’ <span style="font-size:10px;background:rgba(77,148,255,0.2);color:var(--blue2);padding:2px 7px;border-radius:99px">● AO VIVO</span>’:’’)+’</div>’
++’<div style="font-size:12px;color:var(--muted)">’+(w.exercises||[]).length+’ exercícios</div></div>’
++’<span style="font-size:20px;color:'+c.tx+'">→</span></button>’;
+}
+});
+
+// Edit/add controls
+var editBar = homeEditMode
+? ‘<div style="display:flex;gap:8px;margin-bottom:14px">’
++’<button onclick="homeAddWorkout()" style="flex:1;padding:11px;border-radius:var(--r);border:2px dashed var(--blue);background:var(--bluedim);color:var(--blue2);font-size:14px;font-weight:700;cursor:pointer">+ Novo Treino</button>’
++’<button onclick="homeEditMode=false;renderHome()" style="padding:11px 16px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);color:var(--green);font-size:14px;font-weight:700;cursor:pointer">✓ Pronto</button>’
++’</div>’
+: ‘<button onclick="homeEditMode=true;renderHome()" style="width:100%;margin-bottom:14px;padding:11px;border-radius:var(--r);border:1px dashed var(--border);background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer">✏️ Gerenciar Treinos</button>’;
+
+// Water quick
+var wml=getWaterToday(),wmeta=getWaterMeta();
+var wpct=Math.min(100,Math.round(wml/wmeta*100));
+var waterBar=’<div onclick="showPage(\'water\')" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">’
++’<span style="font-size:24px">💧</span>’
++’<div style="flex:1"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:13px;font-weight:600">Água hoje</span><span style="font-size:13px;color:var(--teal);font-weight:700">’+wml+‘ml / ‘+wmeta+‘ml</span></div>’
++’<div class="prog"><div class="prog-fill" style="width:'+wpct+'%;background:linear-gradient(90deg,var(--teal),#06b6d4)"></div></div></div></div>’;
+
+// History
+var histHtml = hist.length
+? hist.map(s=>’<div onclick="showPage(\'detail\',\''+s.id+'\')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid '+(s.type==='tennis'?'var(--green)':s.type==='activity'?'var(--purple)':'var(--blue2)')+';border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer">’
++’<span style="font-size:24px">’+(s.type===‘tennis’?‘🎾’:s.type===‘activity’?‘🏃’:‘🏋️’)+’</span>’
++’<div style="flex:1"><div style="font-weight:600;font-size:15px">’+esc(s.workoutName||‘Treino’)+’</div>’
++’<div style="font-size:12px;color:var(--muted)">’+fmtDate(s.date)+’ · ‘+fmtMin(s.duration||0)+’</div></div>’
++’<span style="color:var(--muted);font-size:18px">›</span></div>’).join(’’)
+: ‘<div class="empty"><div style="font-size:48px">💪</div><p>Nenhum treino ainda.</p></div>’;
+
+document.getElementById(‘home-body’).innerHTML =
+‘<div style="padding:calc(20px + var(--st)) 20px 0;background:linear-gradient(180deg,rgba(77,148,255,0.07),transparent)">’
++’<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">’
++’<div><div style="font-family:var(--fd);font-size:36px;letter-spacing:0.04em">GymTracker</div>’
++’<p style="font-size:13px;color:var(--txt2)">Seu diário de treino</p></div>’
++’<img src="icon-192.png" style="width:48px;height:48px;border-radius:16px;object-fit:cover"/></div>’
++’<div style="display:flex;gap:12px;margin:16px 0;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)">’
++’<div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:30px;color:var(--blue2)">’+wk.n+’</div><div style="font-size:11px;color:var(--muted)">Treinos semana</div></div>’
++’<div style="width:1px;background:var(--border)"></div>’
++’<div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:30px;color:var(--orange)">’+fmtMin(wk.mins)+’</div><div style="font-size:11px;color:var(--muted)">Tempo total</div></div>’
++’</div></div>’
++ liveBanner
++’<div style="padding:0 20px 20px">’
++ waterBar
++’<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">’
++’<p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Iniciar Treino</p>’
++’</div>’
++ editBar
++ wBtns
++’<button onclick="showPage(\'tennis\')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid rgba(63,185,80,0.3);background:rgba(63,185,80,0.08);color:var(--txt);width:100%;margin-bottom:10px;font-family:var(--fb);cursor:pointer;text-align:left">’
++’<span style="width:40px;height:40px;border-radius:12px;background:rgba(63,185,80,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎾</span>’
++’<div style="flex:1"><div style="font-weight:700;font-size:17px">Registrar Tênis</div><div style="font-size:12px;color:var(--muted)">Duração e observações</div></div>’
++’<span style="font-size:20px;color:var(--green)">→</span></button>’
++’<button onclick="showPage(\'activity\')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid rgba(163,113,247,0.3);background:rgba(163,113,247,0.08);color:var(--txt);width:100%;margin-bottom:24px;font-family:var(--fb);cursor:pointer;text-align:left">’
++’<span style="width:40px;height:40px;border-radius:12px;background:rgba(163,113,247,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏃</span>’
++’<div style="flex:1"><div style="font-weight:700;font-size:17px">Registrar Atividade</div><div style="font-size:12px;color:var(--muted)">Corrida, bike, yoga e mais</div></div>’
++’<span style="font-size:20px;color:var(--purple)">→</span></button>’
++’<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">’
++’<p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Últimos Treinos</p>’
++’<button onclick="showPage(\'history\')" style="font-size:13px;color:var(--blue2);background:none;border:none;cursor:pointer;font-family:var(--fb)">Ver todos →</button>’
++’</div>’
++ histHtml
++’</div>’;
+}
+
+// Home workout management helpers
+function homeRenameWorkout(id, val) {
+saveWorkouts(getWorkouts().map(function(w){return w.id===id ? Object.assign({},w,{name:val}) : w;}));
+}
+function homeAddWorkout() {
+var name = ‘Treino ’ + String.fromCharCode(65 + getWorkouts().length);
+var nw = {id:uid(), name, exercises:[]};
+saveWorkouts(getWorkouts().concat([nw]));
+renderHome();
+// Auto open exercise editor after short delay
+setTimeout(() => homeEditExercises(nw.id), 100);
+}
+function homeDupWorkout(id) {
+var w = getWorkouts().find(x=>x.id===id);
+if(!w) return;
+saveWorkouts(getWorkouts().concat([Object.assign({},w,{id:uid(),name:w.name+’ (cópia)’,exercises:(w.exercises||[]).map(function(e){return Object.assign({},e,{id:uid()});})})]));
+renderHome();
+}
+function homeDelWorkout(id) {
+openModal(
+‘<h3 style="font-family:var(--fd);font-size:24px;margin-bottom:10px">Excluir treino?</h3>’
++’<p style="color:var(--txt2);font-size:14px;margin-bottom:20px">Essa ação não pode ser desfeita.</p>’
++’<div style="display:flex;flex-direction:column;gap:10px">’
++’<button class="btn btn-danger" onclick="saveWorkouts(getWorkouts().filter(w=>w.id!==\''+id+'\'));closeModal();renderHome()">🗑 Excluir</button>’
++’<button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>’
++’</div>’
+);
+}
+function homeEditExercises(wId) {
+// Open a modal with the exercise list editor
+renderExerciseEditorModal(wId);
+}
+
+// ── EXERCISE EDITOR MODAL (used from both home and workout screen) ─────
+var EXSUGG = [];
+
+function renderExerciseEditorModal(wId) {
+var w = getWorkouts().find(x=>x.id===wId);
+if (!w) return;
+
+function exRows() {
+var wCurrent = getWorkouts().find(x=>x.id===wId);
+return (wCurrent.exercises||[]).map((ex,idx) =>
+‘<div id="exrow-'+ex.id+'" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px">’
++’<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">’
++’<span style="color:var(--muted);font-size:16px;flex-shrink:0">☰</span>’
++’<input value="'+esc(ex.name)+'" list="ex-sugg-modal" placeholder="Nome do exercício" oninput="modalUpdEx(\''+wId+'\',\''+ex.id+'\',\'name\',this.value)" style="flex:1;font-weight:600;font-size:14px;padding:7px 10px"/>’
++’<button onclick="modalRmEx(\''+wId+'\',\''+ex.id+'\')" style="background:none;border:none;color:var(--red);font-size:20px;padding:4px;cursor:pointer;flex-shrink:0">✕</button>’
++’</div>’
++’<div style="display:flex;gap:8px">’
++’<div style="flex:1"><span class="lbl">Séries</span><input type="number" value="'+ex.sets+'" min="1" oninput="modalUpdEx(\''+wId+'\',\''+ex.id+'\',\'sets\',+this.value)" style="text-align:center;padding:7px 8px;font-size:15px"/></div>’
++’<div style="flex:1"><span class="lbl">Reps</span><input type="number" value="'+ex.reps+'" min="1" oninput="modalUpdEx(\''+wId+'\',\''+ex.id+'\',\'reps\',+this.value)" style="text-align:center;padding:7px 8px;font-size:15px"/></div>’
++’</div></div>’
+).join(’’);
+}
+
+openModal(
+‘<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">’
++’<div>’
++’<h2 style="font-family:var(--fd);font-size:24px">’+esc(w.name)+’</h2>’
++’<p style="font-size:12px;color:var(--txt2)">Toque no nome para editar</p>’
++’</div>’
++’</div>’
++’<span class="lbl" style="margin-bottom:10px">Nome do treino</span>’
++’<input id="modal-wo-name" value="'+esc(w.name)+'" oninput="modalRenameWorkout(\''+wId+'\',this.value)" style="margin-bottom:16px;font-size:17px;font-weight:700"/>’
++’<span class="lbl" style="margin-bottom:10px">Exercícios</span>’
++’<datalist id="ex-sugg-modal">’+EXSUGG.map(s=>’<option value="'+esc(s)+'">’).join(’’)+’</datalist>’
++’<div id="modal-ex-list">’+exRows()+’</div>’
++’<button onclick="modalAddEx(\''+wId+'\')" style="width:100%;padding:12px;border-radius:var(--r);border:2px dashed var(--blue);background:var(--bluedim);color:var(--blue2);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:20px;font-family:var(--fb)">+ Adicionar Exercício</button>’
++’<button class="btn btn-green" onclick="closeModal();renderHome();if(WO&&WO.workout.id===\''+wId+'\'){WO.workout=getWorkouts().find(x=>x.id===\''+wId+'\');renderWoBody();}">✓ Salvar e Fechar</button>’
+);
+}
+
+function modalRenameWorkout(wId, val) {
+saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},w,{name:val}) : w;}));
+}
+function modalUpdEx(wId, exId, field, val) {
+saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},w,{exercises:(w.exercises||[]).map(function(e){return e.id===exId ? Object.assign({},e,{[field]:val}) : e;})}) : w;}));
+}
+function modalRmEx(wId, exId) {
+saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},w,{exercises:(w.exercises||[]).filter(function(e){return e.id!==exId;})}) : w;}));
+var _exrow=document.getElementById(‘exrow-’+exId);if(_exrow)_exrow.remove();
+// TEST
+try {
+if (typeof showPage === ‘function’) {
+document.getElementById(‘out’).textContent = ‘OK at 25% - showPage exists’;
+} else {
+document.getElementById(‘out’).textContent = ‘FAIL at 25% - showPage undefined’;
+}
+} catch(e) {
+document.getElementById(‘out’).textContent = ’ERROR at 25%: ’ + e.message;
+}
 </script>
-</body>
-</html>
+
+</body></html>
