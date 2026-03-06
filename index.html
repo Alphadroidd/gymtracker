@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <meta name="theme-color" content="#0d1117"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -14,203 +13,153 @@
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#0d1117;--bg2:#161b22;--card:#1c2128;--border:#30363d;
-  --blue:#4d94ff;--blue2:#58a6ff;--bluedim:#1f4068;
-  --orange:#ff7b00;--orangedim:#3d1f00;
+  --blue:#4d94ff;--blue2:#58a6ff;--bluedim:rgba(77,148,255,0.12);
+  --orange:#ff7b00;--green:#3fb950;--red:#f85149;--purple:#a371f7;
+  --teal:#2dd4bf;--pink:#f472b6;
   --txt:#e6edf3;--txt2:#8b949e;--muted:#484f58;
-  --green:#3fb950;--red:#f85149;
   --r:12px;--rl:20px;--rs:8px;
   --fd:'Bebas Neue',sans-serif;--fb:'Space Grotesk',sans-serif;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)
 }
 html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--txt);font-family:var(--fb);-webkit-font-smoothing:antialiased}
-#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
-#screen{flex:1;overflow:hidden;position:relative}
-#nav{background:rgba(13,17,23,0.97);border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);flex-shrink:0}
-.ntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--fb);font-size:10px;font-weight:600}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+#screen{flex:1;overflow:hidden;position:relative;min-height:0}
+#nav{background:rgba(13,17,23,0.97);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding-bottom:var(--sb);flex-shrink:0}
+.ntab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:var(--fb);font-size:9px;font-weight:600;letter-spacing:0.02em;transition:color 0.2s}
 .ntab.on{color:var(--blue2)}
-.ntab span:first-child{font-size:22px}
-/* Scroll container */
+.ntab .ico{font-size:20px}
 .pg{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.15s}
 .pg.show{opacity:1;pointer-events:all}
-.scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 .scr::-webkit-scrollbar{display:none}
-/* Header */
-.hdr{padding:calc(20px + var(--st)) 20px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
-.hdr h1{font-family:var(--fd);font-size:28px;letter-spacing:0.03em}
+.hdr{padding:calc(18px + var(--st)) 20px 14px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0}
+.hdr h1{font-family:var(--fd);font-size:26px;letter-spacing:0.03em}
 .hdr p{font-size:13px;color:var(--txt2);margin-top:2px}
-/* Cards */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);padding:16px}
-/* Buttons */
 button{cursor:pointer;font-family:var(--fb)}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--r);font-weight:600;font-size:15px;padding:14px 20px;min-height:52px;width:100%;transition:transform 0.1s,opacity 0.1s}
-.btn:active{transform:scale(0.97);opacity:0.9}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--r);font-weight:600;font-size:15px;padding:13px 20px;min-height:50px;width:100%;transition:transform 0.1s,opacity 0.1s}
+.btn:active{transform:scale(0.97)}
 .btn-blue{background:linear-gradient(135deg,#4d94ff,#2d6fd4);color:#fff;box-shadow:0 4px 16px rgba(77,148,255,0.3)}
 .btn-green{background:linear-gradient(135deg,#2ea043,#3fb950);color:#fff;box-shadow:0 4px 16px rgba(63,185,80,0.3)}
 .btn-ghost{background:var(--card);color:var(--txt2);border:1px solid var(--border)}
-.btn-danger{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3)}
-.btn-sm{min-height:40px;font-size:13px;padding:8px 14px}
-/* Inputs */
-input,textarea,select{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);color:var(--txt);font-family:var(--fb);font-size:15px;padding:10px 12px;width:100%;outline:none}
-input:focus,textarea:focus{border-color:var(--blue)}
-/* Progress */
-.prog{height:4px;background:var(--border);border-radius:99px;overflow:hidden}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--orange));border-radius:99px;transition:width 0.4s}
-/* Number input */
+.btn-danger{background:rgba(248,81,73,0.12);color:var(--red);border:1px solid rgba(248,81,73,0.3)}
+.btn-orange{background:linear-gradient(135deg,#c2560a,#ff7b00);color:#fff;box-shadow:0 4px 16px rgba(255,123,0,0.3)}
+.btn-sm{min-height:38px;font-size:13px;padding:7px 12px}
+input,textarea,select{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);color:var(--txt);font-family:var(--fb);font-size:15px;padding:10px 12px;width:100%;outline:none;transition:border-color 0.2s}
+input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 .ngrp{display:flex;align-items:center;gap:8px}
 .ngrp input{text-align:center;font-weight:700;font-size:18px;flex:1}
-.sbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--txt);font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.sbtn:active{background:var(--bluedim);border-color:var(--blue);transform:scale(0.9)}
-/* Badge */
+.sbtn{width:40px;height:40px;min-height:unset;border-radius:50%;border:1px solid var(--border);background:var(--bg2);color:var(--txt);font-size:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;transition:background 0.15s}
+.sbtn:active{background:var(--bluedim);border-color:var(--blue)}
+.prog{height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:99px;transition:width 0.4s}
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;background:var(--bluedim);color:var(--blue2);margin:2px}
-/* Modal */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:999;display:flex;align-items:flex-end}
-.sheet{width:100%;background:var(--bg2);border-radius:var(--rl) var(--rl) 0 0;padding:20px 20px calc(20px + var(--sb));max-height:85vh;overflow-y:auto}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:999;display:flex;align-items:flex-end}
+.sheet{width:100%;background:var(--bg2);border-radius:var(--rl) var(--rl) 0 0;padding:20px 20px calc(20px + var(--sb));max-height:90vh;overflow-y:auto}
 .handle{width:36px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 20px}
-/* Toast */
-#toasts{position:fixed;bottom:calc(80px + var(--sb));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:380px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
-.toast{background:var(--card);border-radius:var(--r);padding:12px 16px;font-size:14px;font-weight:600;text-align:center;animation:sup 0.3s ease}
-.t-ok{border:1px solid var(--green);color:var(--green)}
-.t-info{border:1px solid var(--blue);color:var(--blue2)}
-/* Empty */
+#toasts{position:fixed;bottom:calc(80px + var(--sb));left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:380px;z-index:9999;pointer-events:none;display:flex;flex-direction:column;gap:8px}
+.toast{border-radius:var(--r);padding:12px 16px;font-size:14px;font-weight:600;text-align:center;animation:slideUp 0.3s ease}
+.t-ok{background:rgba(63,185,80,0.15);border:1px solid rgba(63,185,80,0.4);color:var(--green)}
+.t-info{background:rgba(77,148,255,0.15);border:1px solid rgba(77,148,255,0.4);color:var(--blue2)}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:60px 20px;color:var(--muted);text-align:center;font-size:14px}
-.empty-ico{font-size:48px}
-/* Label */
-.lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px}
-/* Anim */
-@keyframes sup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-.pulse{animation:pulse 1.8s infinite}
+.lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:6px;font-weight:600}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.pulse{animation:pulse 1.5s infinite}
+/* Calendar */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;background:var(--bg);color:var(--muted)}
+.cal-day.has-gym{background:rgba(77,148,255,0.2);color:var(--blue2);border:1px solid rgba(77,148,255,0.3)}
+.cal-day.has-tennis{background:rgba(63,185,80,0.2);color:var(--green);border:1px solid rgba(63,185,80,0.3)}
+.cal-day.has-activity{background:rgba(163,113,247,0.2);color:var(--purple);border:1px solid rgba(163,113,247,0.3)}
+.cal-day.has-multi{background:linear-gradient(135deg,rgba(77,148,255,0.2),rgba(163,113,247,0.2));color:var(--blue2);border:1px solid rgba(77,148,255,0.3)}
+.cal-day.today{box-shadow:0 0 0 2px var(--orange)}
+.cal-day.empty{background:transparent}
+/* Water */
+.water-drops{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px 0}
+.drop{width:44px;height:44px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;transition:all 0.2s;background:var(--bg)}
+.drop.filled{background:rgba(45,212,191,0.2);border-color:var(--teal)}
+.drop:active{transform:scale(0.9)}
+/* Feeling */
+.feeling-btn{flex:1;padding:10px;border-radius:var(--r);border:2px solid var(--border);background:var(--bg);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:all 0.2s;font-family:var(--fb);font-size:12px;font-weight:600;color:var(--txt2)}
+.feeling-btn.selected{border-color:var(--blue);background:var(--bluedim);color:var(--blue2)}
+.feeling-btn .feel-ico{font-size:24px}
+/* Food meal card */
+.meal-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:10px;overflow:hidden}
+.meal-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.meal-body{padding:0 16px 14px;display:none}
+.meal-body.open{display:block}
 </style>
 </head>
 <body>
 <div id="app">
   <div id="screen">
-    <!-- HOME -->
-    <div class="pg show" id="pg-home">
-      <div class="scr" id="home-body"></div>
-    </div>
-    <!-- HISTORY -->
+    <div class="pg show" id="pg-home"><div class="scr" id="home-body" style="padding-bottom:calc(80px + var(--sb))"></div></div>
     <div class="pg" id="pg-history">
-      <div class="hdr"><h1>Histórico</h1><p id="hist-sub"></p></div>
+      <div class="hdr"><h1>Histórico</h1><p id="hist-sub">—</p></div>
       <div class="scr" style="padding:16px;padding-bottom:calc(80px + var(--sb))" id="hist-body"></div>
     </div>
-    <!-- STATS -->
     <div class="pg" id="pg-stats">
-      <div class="hdr"><h1>Estatísticas</h1><p>Sua evolução</p></div>
+      <div class="hdr"><h1>Stats</h1><p>Evolução e calendário</p></div>
       <div class="scr" style="padding:16px;padding-bottom:calc(80px + var(--sb))" id="stats-body"></div>
     </div>
-    <!-- WORKOUTS -->
+    <div class="pg" id="pg-water">
+      <div class="hdr"><h1>💧 Água</h1><p id="water-sub">Meta diária</p></div>
+      <div class="scr" style="padding:16px;padding-bottom:calc(80px + var(--sb))" id="water-body"></div>
+    </div>
+    <div class="pg" id="pg-food">
+      <div class="hdr"><h1>🥗 Alimentação</h1><p>Registro e sugestões</p></div>
+      <div class="scr" style="padding:16px;padding-bottom:calc(80px + var(--sb))" id="food-body"></div>
+    </div>
     <div class="pg" id="pg-workouts">
       <div class="hdr"><h1 id="wk-title">Treinos</h1><p id="wk-sub">Gerencie seus treinos</p></div>
       <div class="scr" style="padding:16px;padding-bottom:calc(80px + var(--sb))" id="wk-body"></div>
     </div>
-    <!-- WORKOUT ACTIVE -->
     <div class="pg" id="pg-workout">
-      <div id="wo-hdr" style="padding:calc(16px + var(--st)) 20px 12px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0"></div>
-      <div class="scr" style="padding:16px;padding-bottom:20px" id="wo-body"></div>
+      <div id="wo-hdr" style="flex-shrink:0;background:var(--bg2);border-bottom:1px solid var(--border);padding:calc(14px + var(--st)) 16px 12px"></div>
+      <div class="scr" style="padding:14px 16px 20px" id="wo-body"></div>
     </div>
-    <!-- TENNIS -->
     <div class="pg" id="pg-tennis">
       <div class="hdr">
-        <button onclick="showPage('home')" style="background:none;border:none;color:var(--txt2);font-size:14px;margin-bottom:8px;padding:0">← Voltar</button>
+        <button onclick="showPage('home')" style="background:none;border:none;color:var(--txt2);font-size:14px;margin-bottom:8px;padding:0;cursor:pointer;font-family:var(--fb)">← Voltar</button>
         <h1>🎾 Registrar Tênis</h1>
       </div>
       <div class="scr" style="padding:20px;padding-bottom:calc(20px + var(--sb))" id="tennis-body"></div>
     </div>
-    <!-- SESSION DETAIL -->
+    <div class="pg" id="pg-activity">
+      <div class="hdr">
+        <button onclick="showPage('home')" style="background:none;border:none;color:var(--txt2);font-size:14px;margin-bottom:8px;padding:0;cursor:pointer;font-family:var(--fb)">← Voltar</button>
+        <h1>🏃 Registrar Atividade</h1>
+      </div>
+      <div class="scr" style="padding:20px;padding-bottom:calc(20px + var(--sb))" id="activity-body"></div>
+    </div>
     <div class="pg" id="pg-detail">
-      <div id="detail-hdr" style="padding:calc(16px + var(--st)) 20px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0"></div>
+      <div id="detail-hdr" style="flex-shrink:0;padding:calc(16px + var(--st)) 20px 16px;background:var(--bg2);border-bottom:1px solid var(--border)"></div>
       <div class="scr" style="padding:16px;padding-bottom:calc(20px + var(--sb))" id="detail-body"></div>
     </div>
   </div>
-  <!-- NAV -->
   <nav id="nav">
-    <button class="ntab on" id="ntab-home" onclick="showPage('home')"><span>🏠</span><span>Início</span></button>
-    <button class="ntab" id="ntab-history" onclick="showPage('history')"><span>📋</span><span>Histórico</span></button>
-    <button class="ntab" id="ntab-stats" onclick="showPage('stats')"><span>📊</span><span>Stats</span></button>
-    <button class="ntab" id="ntab-workouts" onclick="showPage('workouts')"><span>⚙️</span><span>Treinos</span></button>
+    <button class="ntab on" id="ntab-home"    onclick="showPage('home')"    ><span class="ico">🏠</span><span>Início</span></button>
+    <button class="ntab"    id="ntab-stats"   onclick="showPage('stats')"   ><span class="ico">📅</span><span>Stats</span></button>
+    <button class="ntab"    id="ntab-water"   onclick="showPage('water')"   ><span class="ico">💧</span><span>Água</span></button>
+    <button class="ntab"    id="ntab-food"    onclick="showPage('food')"    ><span class="ico">🥗</span><span>Comida</span></button>
+    <button class="ntab"    id="ntab-history" onclick="showPage('history')" ><span class="ico">📋</span><span>Histórico</span></button>
+    <button class="ntab"    id="ntab-workouts"onclick="showPage('workouts')" ><span class="ico">⚙️</span><span>Treinos</span></button>
   </nav>
 </div>
-<!-- Modal -->
 <div class="overlay" id="modal" style="display:none" onclick="closeModal()">
   <div class="sheet" onclick="event.stopPropagation()">
     <div class="handle"></div>
-    <div id="modal-inner"></div>
+    <div id="modal-body"></div>
   </div>
 </div>
-<!-- Toasts -->
 <div id="toasts"></div>
 
 <script>
 'use strict';
 
-// ── EXERCISE GIF IMAGES ──────────────────────────────────────────────
-const GIF_CACHE_KEY = 'gt_gifs_v2';
-const GIF_SEARCH = {
-  'Lat Pulldown':     'lat pulldown',
-  'Leg Extension':    'leg extension',
-  'Hip Adductor':     'hip adductor',
-  'Tríceps na Corda': 'triceps pushdown',
-  'Bíceps Curl':      'barbell curl',
-  'Abdominal':        'crunch',
-  'Leg Press':        'leg press',
-  'Seated Leg Curl':  'seated leg curl',
-  'Hip Abductor':     'hip abductor',
-  'Chest Press':      'chest press',
-};
-let EXERCISE_GIFS = {};
-
-// Load from cache immediately
-try {
-  const cached = localStorage.getItem(GIF_CACHE_KEY);
-  if (cached) EXERCISE_GIFS = JSON.parse(cached);
-} catch(e) {}
-
-function fetchGifsInBackground() {
-  if (Object.keys(EXERCISE_GIFS).length >= Object.keys(GIF_SEARCH).length) return;
-  const names = Object.keys(GIF_SEARCH);
-  let i = 0;
-  function next() {
-    if (i >= names.length) {
-      try { localStorage.setItem(GIF_CACHE_KEY, JSON.stringify(EXERCISE_GIFS)); } catch(e) {}
-      return;
-    }
-    const name = names[i++];
-    if (EXERCISE_GIFS[name]) { next(); return; } // already cached
-    fetch('https://exercisedb.p.rapidapi.com/exercises/name/' + encodeURIComponent(GIF_SEARCH[name]) + '?limit=1&offset=0', {
-      headers: {
-        'x-rapidapi-host': 'exercisedb.p.rapidapi.com',
-        'x-rapidapi-key': '22ae6f8efemsh24b6ff59f839a94p177755jsn12bfe3dfdcd6'
-      }
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data && data[0] && data[0].gifUrl) {
-        EXERCISE_GIFS[name] = data[0].gifUrl;
-      }
-      setTimeout(next, 250);
-    })
-    .catch(() => setTimeout(next, 250));
-  }
-  next();
-}
-
-function exThumb(name, done) {
-  const url = EXERCISE_GIFS[name];
-  const emoji = done ? '✅' : '💪';
-  let html = '<div style="width:58px;height:58px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#1a1f2e;position:relative;display:flex;align-items:center;justify-content:center">';
-  if (url) {
-    html += '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" onerror="this.remove()"/>';
-  }
-  html += '<span style="font-size:' + (url ? '0' : '26') + 'px;position:relative;z-index:1">' + emoji + '</span>';
-  if (done) html += '<div style="position:absolute;inset:0;background:rgba(63,185,80,0.75);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:2">✅</div>';
-  html += '</div>';
-  return html;
-}
-
-
-// ── DATA ──────────────────────────────────────────────────────────────
-const KEYS = {W:'gt_w2', H:'gt_h2', WH:'gt_wh2', INIT:'gt_init3'};
+// ── DATA KEYS ─────────────────────────────────────────────────────────
+const KEYS = {W:'gt_w2',H:'gt_h2',WH:'gt_wh2',INIT:'gt_init3',WATER:'gt_water',WATERMETA:'gt_watermeta',FOOD:'gt_food'};
 
 const DEFAULTS = [
   {id:'wa',name:'Treino A',exercises:[
@@ -235,150 +184,163 @@ function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}
 
 function initData(){
   if(!localStorage.getItem(KEYS.INIT)){
-    lss(KEYS.W, DEFAULTS);
-    lss(KEYS.H, []);
-    lss(KEYS.WH, {});
+    lss(KEYS.W,DEFAULTS);lss(KEYS.H,[]);lss(KEYS.WH,{});
+    lss(KEYS.WATER,{});lss(KEYS.WATERMETA,2500);lss(KEYS.FOOD,{});
     localStorage.setItem(KEYS.INIT,'1');
   }
 }
-const getWorkouts = () => ls(KEYS.W) || [];
-const saveWorkouts = (v) => lss(KEYS.W, v);
-const getHistory = () => ls(KEYS.H) || [];
-const getWeights = () => ls(KEYS.WH) || {};
+const getWorkouts=()=>ls(KEYS.W)||[];
+const saveWorkouts=v=>lss(KEYS.W,v);
+const getHistory=()=>ls(KEYS.H)||[];
+const getWeights=()=>ls(KEYS.WH)||{};
 
 function saveSession(s){
-  const h = getHistory(); h.unshift(s); lss(KEYS.H, h);
-  const wh = getWeights();
+  const h=getHistory();h.unshift(s);lss(KEYS.H,h);
+  const wh=getWeights();
   (s.exercises||[]).forEach(ex=>{
-    if(!wh[ex.name]) wh[ex.name]=[];
+    if(!wh[ex.name])wh[ex.name]=[];
     wh[ex.name].push({date:s.date,weight:ex.weight,reps:ex.reps});
   });
-  lss(KEYS.WH, wh);
+  lss(KEYS.WH,wh);
 }
-function delSession(id){ lss(KEYS.H, getHistory().filter(s=>s.id!==id)); }
+function delSession(id){lss(KEYS.H,getHistory().filter(s=>s.id!==id));}
 
 function weekStats(){
-  const h=getHistory(), now=new Date();
-  const ws=new Date(now); ws.setDate(now.getDate()-now.getDay()); ws.setHours(0,0,0,0);
+  const h=getHistory(),now=new Date();
+  const ws=new Date(now);ws.setDate(now.getDate()-now.getDay());ws.setHours(0,0,0,0);
   const sess=h.filter(s=>new Date(s.date)>=ws);
-  return {n:sess.length, mins:sess.reduce((a,s)=>a+(s.duration||0),0)};
+  return{n:sess.length,mins:sess.reduce((a,s)=>a+(s.duration||0),0)};
 }
-
 function lastWeightsMap(){
   const lw={};
   getHistory().forEach(s=>(s.exercises||[]).forEach(ex=>{if(!(ex.name in lw))lw[ex.name]=ex.weight;}));
   return lw;
 }
 
+// Water
+function getTodayKey(){return new Date().toISOString().split('T')[0];}
+function getWaterToday(){const w=ls(KEYS.WATER)||{};return w[getTodayKey()]||0;}
+function addWater(ml){
+  const w=ls(KEYS.WATER)||{};const k=getTodayKey();
+  w[k]=(w[k]||0)+ml;lss(KEYS.WATER,w);
+}
+function setWaterMeta(ml){lss(KEYS.WATERMETA,ml);}
+function getWaterMeta(){return ls(KEYS.WATERMETA)||2500;}
+
+// Food
+function getFoodToday(){const f=ls(KEYS.FOOD)||{};return f[getTodayKey()]||{breakfast:[],lunch:[],snack:[],dinner:[]};}
+function saveFoodToday(data){const f=ls(KEYS.FOOD)||{};f[getTodayKey()]=data;lss(KEYS.FOOD,f);}
+
 // ── UTILS ─────────────────────────────────────────────────────────────
-function uid(){ return Math.random().toString(36).slice(2,9)+Date.now().toString(36); }
-function vib(p=[100]){ if(navigator.vibrate) navigator.vibrate(p); }
-function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtDur(s){ const h=~~(s/3600),m=~~(s%3600/60),ss=s%60; return h?h+'h '+m+'m':m?m+'m '+ss+'s':ss+'s'; }
-function fmtMin(m){ return m<60?m+'min':~~(m/60)+'h'+(m%60?' '+m%60+'min':''); }
+function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
+function vib(p){if(navigator.vibrate)navigator.vibrate(p||[80]);}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDur(s){const h=~~(s/3600),m=~~(s%3600/60),ss=s%60;return h?h+'h '+m+'m':m?m+'m '+ss+'s':ss+'s';}
+function fmtMin(m){return m<60?m+'min':~~(m/60)+'h'+(m%60?' '+m%60+'min':'');}
 function fmtDate(d){
   const date=new Date(d),now=new Date(),days=~~((now-date)/86400000);
-  if(days===0)return'Hoje'; if(days===1)return'Ontem'; if(days<7)return days+' dias atrás';
+  if(days===0)return'Hoje';if(days===1)return'Ontem';if(days<7)return days+' dias atrás';
   return date.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
 }
-
-// ── TOAST ─────────────────────────────────────────────────────────────
-function toast(msg, ok=true){
+function toast(msg,ok){
   const el=document.createElement('div');
-  el.className='toast '+(ok?'t-ok':'t-info');
+  el.className='toast '+(ok===false?'t-info':'t-ok');
   el.textContent=msg;
   document.getElementById('toasts').appendChild(el);
-  setTimeout(()=>el.remove(), 3000);
+  setTimeout(()=>el.remove(),3000);
 }
-
-// ── MODAL ─────────────────────────────────────────────────────────────
-function openModal(html){
-  document.getElementById('modal-inner').innerHTML=html;
-  document.getElementById('modal').style.display='flex';
-}
-function closeModal(){ document.getElementById('modal').style.display='none'; }
+function openModal(html){document.getElementById('modal-body').innerHTML=html;document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
 
 // ── NAVIGATION ────────────────────────────────────────────────────────
-const NAV_PAGES = ['home','history','stats','workouts'];
-let currentPg = 'home';
-
-function showPage(name, data){
-  // hide all
-  document.querySelectorAll('.pg').forEach(p=>{ p.classList.remove('show'); });
-  // update nav
+const NAV_PAGES=['home','history','stats','workouts','water','food'];
+function showPage(name,data){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('show'));
   document.querySelectorAll('.ntab').forEach(b=>b.classList.remove('on'));
-  document.getElementById('nav').style.display = 'flex';
-
-  const pgEl = document.getElementById('pg-'+name);
-  if(!pgEl){ console.error('Page not found: pg-'+name); return; }
-  pgEl.classList.add('show');
-  currentPg = name;
-
+  document.getElementById('nav').style.display='flex';
+  const pg=document.getElementById('pg-'+name);
+  if(!pg)return;
+  pg.classList.add('show');
   if(NAV_PAGES.includes(name)){
-    const tab = document.getElementById('ntab-'+name);
-    if(tab) tab.classList.add('on');
+    const t=document.getElementById('ntab-'+name);
+    if(t)t.classList.add('on');
   } else {
-    document.getElementById('nav').style.display = 'none';
+    document.getElementById('nav').style.display='none';
   }
-
-  // Render
-  if(name==='home') renderHome();
-  else if(name==='history') renderHistory();
-  else if(name==='stats') renderStats();
-  else if(name==='workouts') renderWorkouts();
-  else if(name==='workout') startWorkout(data);
-  else if(name==='tennis') renderTennis();
-  else if(name==='detail') renderDetail(data);
+  if(name==='home')renderHome();
+  else if(name==='history')renderHistory();
+  else if(name==='stats')renderStats();
+  else if(name==='workouts')renderWorkouts();
+  else if(name==='workout')startWorkout(data);
+  else if(name==='tennis')renderTennis();
+  else if(name==='activity')renderActivity();
+  else if(name==='detail')renderDetail(data);
+  else if(name==='water')renderWater();
+  else if(name==='food')renderFood();
 }
 
 // ── HOME ──────────────────────────────────────────────────────────────
 function renderHome(){
-  const workouts = getWorkouts();
-  const wk = weekStats();
-  const hist = getHistory().slice(0,3);
-  // Live workout banner
-  let liveBanner = '';
-  if (WO) {
-    liveBanner = '<div onclick="showPage(\'workout\',\''+WO.workout.id+'\');" style="margin:0 20px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(77,148,255,0.15),rgba(255,123,0,0.1));border:1px solid rgba(77,148,255,0.4);border-radius:var(--r);display:flex;align-items:center;gap:12px;cursor:pointer">'
-      +'<div style="width:44px;height:44px;border-radius:10px;background:rgba(77,148,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">▶️</div>'
-      +'<div style="flex:1">'
-      +'<div style="font-weight:700;color:var(--blue2);font-size:15px">Treino em andamento</div>'
-      +'<div style="font-size:13px;color:var(--txt2)">'+esc(WO.workout.name)+' · <span id="banner-clock">'+fmtDur(WO.elapsed)+'</span></div>'
-      +'</div>'
-      +'<span style="color:var(--blue2);font-size:20px">›</span>'
-      +'</div>';
-  }
-  const colors = [
+  const workouts=getWorkouts();
+  const wk=weekStats();
+  const hist=getHistory().slice(0,3);
+  const colors=[
     {bg:'rgba(77,148,255,0.1)',bd:'rgba(77,148,255,0.3)',ic:'rgba(77,148,255,0.15)',tx:'#58a6ff',em:'💪'},
     {bg:'rgba(255,123,0,0.1)',bd:'rgba(255,123,0,0.3)',ic:'rgba(255,123,0,0.15)',tx:'#ff9a3c',em:'🔥'},
-    {bg:'rgba(163,113,247,0.1)',bd:'rgba(163,113,247,0.3)',ic:'rgba(163,113,247,0.15)',tx:'#a371f7',em:'⚡'},
-    {bg:'rgba(63,185,80,0.1)',bd:'rgba(63,185,80,0.3)',ic:'rgba(63,185,80,0.15)',tx:'#3fb950',em:'🎯'},
+    {bg:'rgba(163,113,247,0.1)',bd:'rgba(163,113,247,0.3)',ic:'rgba(163,113,247,0.15)',tx:'#c4b5fd',em:'⚡'},
+    {bg:'rgba(63,185,80,0.1)',bd:'rgba(63,185,80,0.3)',ic:'rgba(63,185,80,0.15)',tx:'#4ade80',em:'🎯'},
   ];
 
-  const wBtns = workouts.map((w,i)=>{
-    const c = colors[i%colors.length];
+  const liveBanner = WO
+    ? `<div onclick="showPage('workout','${WO.workout.id}')" style="margin:0 20px 16px;padding:14px 16px;background:linear-gradient(135deg,rgba(77,148,255,0.15),rgba(255,123,0,0.1));border:1px solid rgba(77,148,255,0.4);border-radius:var(--r);display:flex;align-items:center;gap:12px;cursor:pointer">
+        <div class="pulse" style="width:44px;height:44px;border-radius:10px;background:rgba(77,148,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${WO.started?'▶️':'⏸'}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;color:var(--blue2);font-size:15px">Treino ${WO.started?'em andamento':'pronto para iniciar'}</div>
+          <div style="font-size:13px;color:var(--txt2)">${esc(WO.workout.name)} · <span id="banner-clock">${WO.started?fmtDur(WO.elapsed):'Aguardando'}</span></div>
+        </div>
+        <span style="color:var(--blue2);font-size:20px">›</span>
+      </div>`
+    : '';
+
+  const wBtns=workouts.map((w,i)=>{
+    const c=colors[i%colors.length];
+    const alive=WO&&WO.workout.id===w.id;
     return `<button onclick="showPage('workout','${esc(w.id)}')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid ${c.bd};background:${c.bg};color:var(--txt);width:100%;margin-bottom:10px;font-family:var(--fb);cursor:pointer;text-align:left">
       <span style="width:40px;height:40px;border-radius:12px;background:${c.ic};display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${c.em}</span>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:17px">${esc(w.name)}</div>
+        <div style="font-weight:700;font-size:17px">${esc(w.name)}${alive?` <span style="font-size:10px;background:rgba(77,148,255,0.2);color:var(--blue2);padding:2px 7px;border-radius:99px;font-family:var(--fb)">● AO VIVO</span>`:''}</div>
         <div style="font-size:12px;color:var(--muted)">${(w.exercises||[]).length} exercícios</div>
       </div>
       <span style="font-size:20px;color:${c.tx}">→</span>
     </button>`;
   }).join('');
 
-  const histHtml = hist.length ? hist.map(s=>`
-    <div onclick="showPage('detail','${s.id}')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${s.type==='tennis'?'var(--green)':'var(--blue2)'};border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer">
-      <span style="font-size:24px">${s.type==='tennis'?'🎾':'🏋️'}</span>
+  // Water quick status
+  const wml=getWaterToday(),wmeta=getWaterMeta();
+  const wpct=Math.min(100,Math.round(wml/wmeta*100));
+  const waterBar=`<div onclick="showPage('water')" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px">
+    <span style="font-size:24px">💧</span>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:600">Água hoje</span>
+        <span style="font-size:13px;color:var(--teal);font-weight:700">${wml}ml / ${wmeta}ml</span>
+      </div>
+      <div class="prog"><div class="prog-fill" style="width:${wpct}%;background:linear-gradient(90deg,var(--teal),#06b6d4)"></div></div>
+    </div>
+  </div>`;
+
+  const histHtml=hist.length?hist.map(s=>`
+    <div onclick="showPage('detail','${s.id}')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${s.type==='tennis'?'var(--green)':s.type==='activity'?'var(--purple)':'var(--blue2)'};border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;cursor:pointer">
+      <span style="font-size:24px">${s.type==='tennis'?'🎾':s.type==='activity'?'🏃':'🏋️'}</span>
       <div style="flex:1">
         <div style="font-weight:600;font-size:15px">${esc(s.workoutName||'Treino')}</div>
         <div style="font-size:12px;color:var(--muted)">${fmtDate(s.date)} · ${fmtMin(s.duration||0)}</div>
       </div>
       <span style="color:var(--muted);font-size:18px">›</span>
     </div>`).join('')
-  : `<div class="empty"><div class="empty-ico">💪</div><p>Nenhum treino ainda.<br>Inicie seu primeiro!</p></div>`;
+  :`<div class="empty"><div style="font-size:48px">💪</div><p>Nenhum treino ainda.</p></div>`;
 
-  document.getElementById('home-body').innerHTML = `
+  document.getElementById('home-body').innerHTML=`
     <div style="padding:calc(20px + var(--st)) 20px 0;background:linear-gradient(180deg,rgba(77,148,255,0.07),transparent)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
         <div>
@@ -388,25 +350,25 @@ function renderHome(){
         <div style="width:48px;height:48px;border-radius:16px;background:var(--bluedim);display:flex;align-items:center;justify-content:center;font-size:26px">🏋️</div>
       </div>
       <div style="display:flex;gap:12px;margin:16px 0;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)">
-        <div style="flex:1;text-align:center">
-          <div style="font-family:var(--fd);font-size:30px;color:var(--blue2)">${wk.n}</div>
-          <div style="font-size:11px;color:var(--muted)">Treinos semana</div>
-        </div>
+        <div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:30px;color:var(--blue2)">${wk.n}</div><div style="font-size:11px;color:var(--muted)">Treinos semana</div></div>
         <div style="width:1px;background:var(--border)"></div>
-        <div style="flex:1;text-align:center">
-          <div style="font-family:var(--fd);font-size:30px;color:var(--orange)">${fmtMin(wk.mins)}</div>
-          <div style="font-size:11px;color:var(--muted)">Tempo total</div>
-        </div>
+        <div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:30px;color:var(--orange)">${fmtMin(wk.mins)}</div><div style="font-size:11px;color:var(--muted)">Tempo total</div></div>
       </div>
     </div>
     ${liveBanner}
     <div style="padding:0 20px 20px">
+      ${waterBar}
       <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Iniciar Treino</p>
       ${wBtns}
-      <button onclick="showPage('tennis')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid rgba(63,185,80,0.3);background:rgba(63,185,80,0.08);color:var(--txt);width:100%;margin-bottom:24px;font-family:var(--fb);cursor:pointer;text-align:left">
+      <button onclick="showPage('tennis')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid rgba(63,185,80,0.3);background:rgba(63,185,80,0.08);color:var(--txt);width:100%;margin-bottom:10px;font-family:var(--fb);cursor:pointer;text-align:left">
         <span style="width:40px;height:40px;border-radius:12px;background:rgba(63,185,80,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🎾</span>
         <div style="flex:1"><div style="font-weight:700;font-size:17px">Registrar Tênis</div><div style="font-size:12px;color:var(--muted)">Duração e observações</div></div>
         <span style="font-size:20px;color:var(--green)">→</span>
+      </button>
+      <button onclick="showPage('activity')" style="display:flex;align-items:center;gap:14px;padding:16px;border-radius:20px;border:1px solid rgba(163,113,247,0.3);background:rgba(163,113,247,0.08);color:var(--txt);width:100%;margin-bottom:24px;font-family:var(--fb);cursor:pointer;text-align:left">
+        <span style="width:40px;height:40px;border-radius:12px;background:rgba(163,113,247,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏃</span>
+        <div style="flex:1"><div style="font-weight:700;font-size:17px">Registrar Atividade</div><div style="font-size:12px;color:var(--muted)">Corrida, bike, yoga e mais</div></div>
+        <span style="font-size:20px;color:var(--purple)">→</span>
       </button>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em">Últimos Treinos</p>
@@ -416,94 +378,92 @@ function renderHome(){
     </div>`;
 }
 
-// ── WORKOUT ───────────────────────────────────────────────────────────
-let WO = null; // active workout state
+// ── WORKOUT STATE ─────────────────────────────────────────────────────
+let WO = null;
 
-function startWorkout(id){
-  const w = getWorkouts().find(x=>x.id===id);
-  if(!w){ showPage('home'); return; }
-  const lw = lastWeightsMap();
-  WO = {
-    workout: w,
-    start: Date.now(),
-    elapsed: 0,
-    timer: null,
-    restTimer: null,
-    restRemaining: 0,
-    restTotal: 60,
-    sets: {},   // exId -> completed count
-    data: {},   // exId -> {weight, reps}
-  };
-  w.exercises.forEach(ex=>{
-    WO.sets[ex.id] = 0;
-    WO.data[ex.id] = {weight: lw[ex.name]||ex.weight||0, reps: ex.reps};
-  });
-  WO.timer = setInterval(()=>{
-    WO.elapsed = Math.floor((Date.now()-WO.start)/1000);
-    const el=document.getElementById('wo-clock');
-    if(el) el.textContent=fmtDur(WO.elapsed);
-    const bc=document.getElementById('banner-clock');
-    if(bc) bc.textContent=fmtDur(WO.elapsed);
+function woBegin(){
+  if(!WO||WO.started)return;
+  WO.started=true;
+  WO.start=Date.now();
+  WO.timer=setInterval(()=>{
+    WO.elapsed=Math.floor((Date.now()-WO.start)/1000);
+    const el=document.getElementById('wo-clock');if(el)el.textContent=fmtDur(WO.elapsed);
+    const bc=document.getElementById('banner-clock');if(bc)bc.textContent=fmtDur(WO.elapsed);
     woUpdateProgress();
   },1000);
+  renderWoHeader();
+}
+
+function startWorkout(id){
+  if(WO&&WO.workout.id===id){renderWoHeader();renderWoBody();return;}
+  if(WO){clearInterval(WO.timer);clearInterval(WO.restTimer);}
+  const w=getWorkouts().find(x=>x.id===id);
+  if(!w){showPage('home');return;}
+  const lw=lastWeightsMap();
+  WO={
+    workout:w,start:null,started:false,elapsed:0,
+    timer:null,restTimer:null,restRemaining:0,restTotal:60,
+    sets:{},data:{},feeling:null,
+  };
+  w.exercises.forEach(ex=>{
+    WO.sets[ex.id]=0;
+    WO.data[ex.id]={weight:lw[ex.name]||ex.weight||0,reps:ex.reps};
+  });
   renderWoHeader();
   renderWoBody();
 }
 
 function stopWorkout(){
-  if(WO){ clearInterval(WO.timer); clearInterval(WO.restTimer); }
-  WO = null;
+  if(WO){if(WO.timer)clearInterval(WO.timer);if(WO.restTimer)clearInterval(WO.restTimer);}
+  WO=null;
 }
 
-function woTotalSets(){ return WO ? WO.workout.exercises.reduce((a,e)=>a+e.sets,0) : 0; }
-function woDoneSets(){ return WO ? Object.values(WO.sets).reduce((a,v)=>a+v,0) : 0; }
-
+function woTotalSets(){return WO?WO.workout.exercises.reduce((a,e)=>a+e.sets,0):0;}
+function woDoneSets(){return WO?Object.values(WO.sets).reduce((a,v)=>a+v,0):0;}
 function woUpdateProgress(){
-  const tot=woTotalSets(), done=woDoneSets();
-  const pEl=document.getElementById('wo-prog');
-  const lEl=document.getElementById('wo-prog-lbl');
-  if(pEl) pEl.style.width=(tot?done/tot*100:0)+'%';
-  if(lEl) lEl.textContent=done+'/'+tot+' séries';
+  const tot=woTotalSets(),done=woDoneSets();
+  const p=document.getElementById('wo-prog');if(p)p.style.width=(tot?done/tot*100:0)+'%';
+  const l=document.getElementById('wo-prog-lbl');if(l)l.textContent=done+'/'+tot+' séries';
 }
 
 function renderWoHeader(){
-  if(!WO) return;
+  if(!WO)return;
   document.getElementById('wo-hdr').innerHTML=`
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <button onclick="showPage('home')" style="background:none;border:none;color:var(--txt2);font-size:22px;padding:4px;line-height:1;cursor:pointer">←</button>
       <div style="flex:1;font-family:var(--fd);font-size:24px">${esc(WO.workout.name)}</div>
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:6px 12px;font-family:var(--fd);font-size:22px;color:var(--blue2)" id="wo-clock">0s</div>
-      <button onclick="woAskFinish()" style="background:rgba(248,81,73,0.12);border:1px solid rgba(248,81,73,0.35);border-radius:var(--rs);padding:6px 12px;color:#f85149;font-family:var(--fb);font-size:13px;font-weight:700;cursor:pointer">⏹ Parar</button>
+      ${WO.started
+        ? `<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:5px 12px;font-family:var(--fd);font-size:20px;color:var(--blue2)" id="wo-clock">${fmtDur(WO.elapsed)}</div>
+           <button onclick="woAskFinish()" style="background:rgba(248,81,73,0.12);border:1px solid rgba(248,81,73,0.35);border-radius:8px;padding:5px 12px;color:#f85149;font-family:var(--fb);font-size:13px;font-weight:700;cursor:pointer">⏹ Parar</button>`
+        : `<button onclick="woBegin()" style="background:linear-gradient(135deg,#2ea043,#3fb950);border:none;border-radius:8px;padding:8px 18px;color:#fff;font-family:var(--fb);font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(63,185,80,0.4)">▶ Iniciar</button>`
+      }
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <div class="prog" style="flex:1"><div class="prog-fill" id="wo-prog" style="width:0%"></div></div>
-      <span style="font-size:12px;color:var(--muted);flex-shrink:0" id="wo-prog-lbl">0/${woTotalSets()} séries</span>
+      <span style="font-size:12px;color:var(--muted)" id="wo-prog-lbl">0/${woTotalSets()} séries</span>
     </div>`;
+  woUpdateProgress();
 }
 
 function renderWoBody(){
-  if(!WO) return;
-  const cards = WO.workout.exercises.map((ex,i)=>renderExCard(ex)).join('');
-  document.getElementById('wo-body').innerHTML = cards +
-    `<div id="wo-rest-area"></div>
-     <div id="wo-finish-area" style="margin-top:8px"></div>`;
+  if(!WO)return;
+  document.getElementById('wo-body').innerHTML=
+    WO.workout.exercises.map(ex=>renderExCard(ex)).join('')
+    +'<div id="wo-rest-area"></div><div id="wo-finish-area" style="margin-top:8px"></div>';
   woCheckDone();
 }
 
 function renderExCard(ex){
-  const done = WO.sets[ex.id] >= ex.sets;
-  const d = WO.data[ex.id]||{weight:0,reps:ex.reps};
-  const lw = lastWeightsMap()[ex.name];
-  const dots = Array.from({length:ex.sets},(_,j)=>
-    `<div style="width:10px;height:10px;border-radius:50%;background:${j<WO.sets[ex.id]?'var(--green)':'var(--border)'}"></div>`
-  ).join('');
-
-  const body = done
-    ? `<div style="padding:0 16px 14px"><div style="background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.2);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:8px"><span>🎯</span><span style="font-size:13px;color:var(--green);font-weight:600">Concluído!</span></div></div>`
-    : `<div style="padding:0 16px 14px;display:flex;flex-direction:column;gap:12px">
+  if(!WO)return'';
+  const done=WO.sets[ex.id]>=ex.sets;
+  const d=WO.data[ex.id]||{weight:0,reps:ex.reps};
+  const lw=lastWeightsMap()[ex.name];
+  const dots=Array.from({length:ex.sets},(_,j)=>`<div style="width:10px;height:10px;border-radius:50%;background:${j<WO.sets[ex.id]?'var(--green)':'var(--border)'}"></div>`).join('');
+  const body=done
+    ?`<div style="padding:0 16px 14px"><div style="background:rgba(63,185,80,0.08);border:1px solid rgba(63,185,80,0.2);border-radius:var(--rs);padding:10px 14px;display:flex;align-items:center;gap:8px"><span>🎯</span><span style="font-size:13px;color:var(--green);font-weight:600">Concluído!</span></div></div>`
+    :`<div style="padding:0 16px 14px;display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;gap:12px">
-          <div style="flex:1">
-            <span class="lbl">Carga (kg)</span>
+          <div style="flex:1"><span class="lbl">Carga (kg)</span>
             <div class="ngrp">
               <button class="sbtn" onclick="woStep('${ex.id}','weight',-2.5)">−</button>
               <input type="number" value="${d.weight}" min="0" step="0.5" oninput="woSet('${ex.id}','weight',+this.value)" id="inp-w-${ex.id}"/>
@@ -511,8 +471,7 @@ function renderExCard(ex){
             </div>
             ${lw>0?`<p style="font-size:11px;color:var(--muted);margin-top:3px">Última: ${lw}kg</p>`:''}
           </div>
-          <div style="flex:1">
-            <span class="lbl">Reps</span>
+          <div style="flex:1"><span class="lbl">Reps</span>
             <div class="ngrp">
               <button class="sbtn" onclick="woStep('${ex.id}','reps',-1)">−</button>
               <input type="number" value="${d.reps}" min="1" oninput="woSet('${ex.id}','reps',+this.value)" id="inp-r-${ex.id}"/>
@@ -520,138 +479,117 @@ function renderExCard(ex){
             </div>
           </div>
         </div>
-        <button class="btn btn-blue" onclick="woCompleteSet('${ex.id}')">✓ Concluir Série ${WO.sets[ex.id]+1}/${ex.sets}</button>
+        <button class="btn btn-blue" onclick="woCompleteSet('${ex.id}')"${!WO.started?" onclick=\"woBegin();woCompleteSet('"+ex.id+"')\"":''}>✓ Concluir Série ${WO.sets[ex.id]+1}/${ex.sets}</button>
       </div>`;
-
-  return `<div id="exc-${ex.id}" style="background:var(--card);border:1px solid ${done?'var(--green)':'var(--border)'};border-radius:var(--rl);margin-bottom:12px;overflow:hidden;${done?'':''}">
+  return`<div id="exc-${ex.id}" style="background:var(--card);border:1px solid ${done?'var(--green)':'var(--border)'};border-radius:var(--rl);margin-bottom:12px;overflow:hidden">
     <div style="padding:14px 16px;display:flex;align-items:center;gap:12px">
-      ${exThumb(ex.name, done)}
+      <div style="width:48px;height:48px;border-radius:12px;background:${done?'rgba(63,185,80,0.15)':'var(--bluedim)'};display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${done?'✅':'💪'}</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:16px;color:${done?'var(--green)':'var(--txt)'}">${esc(ex.name)}</div>
         <div style="font-size:13px;color:var(--txt2)">${WO.sets[ex.id]}/${ex.sets} séries · ${ex.reps} reps</div>
       </div>
       <div style="display:flex;gap:4px">${dots}</div>
     </div>
-    ${body}
-  </div>`;
+    ${body}</div>`;
 }
 
-function woStep(exId, field, delta){
-  if(!WO) return;
-  const d = WO.data[exId]||{};
-  const cur = parseFloat(d[field])||0;
-  const nv = Math.max(field==='reps'?1:0, cur+delta);
-  WO.data[exId] = {...d, [field]:nv};
-  const inp = document.getElementById('inp-'+field[0]+'-'+exId);
-  if(inp) inp.value = nv;
+function woStep(exId,field,delta){
+  if(!WO)return;
+  const d=WO.data[exId]||{};
+  const nv=Math.max(field==='reps'?1:0,(parseFloat(d[field])||0)+delta);
+  WO.data[exId]={...d,[field]:nv};
+  const inp=document.getElementById('inp-'+field[0]+'-'+exId);
+  if(inp)inp.value=nv;
 }
-function woSet(exId, field, val){
-  if(!WO) return;
-  WO.data[exId] = {...(WO.data[exId]||{}), [field]:val};
-}
+function woSet(exId,field,val){if(!WO)return;WO.data[exId]={...(WO.data[exId]||{}),[field]:val};}
 
 function woCompleteSet(exId){
-  if(!WO) return;
-  WO.sets[exId] = (WO.sets[exId]||0)+1;
+  if(!WO)return;
+  if(!WO.started)woBegin();
+  WO.sets[exId]=(WO.sets[exId]||0)+1;
   vib([50,30,100]);
-  // Re-render that card
-  const ex = WO.workout.exercises.find(e=>e.id===exId);
-  const card = document.getElementById('exc-'+exId);
-  if(card){ const tmp=document.createElement('div'); tmp.innerHTML=renderExCard(ex); card.replaceWith(tmp.firstElementChild); }
-  woUpdateProgress();
-  woStartRest();
-  woCheckDone();
+  const ex=WO.workout.exercises.find(e=>e.id===exId);
+  const card=document.getElementById('exc-'+exId);
+  if(card&&ex){const t=document.createElement('div');t.innerHTML=renderExCard(ex);card.replaceWith(t.firstElementChild);}
+  woUpdateProgress();woStartRest();woCheckDone();
   setTimeout(()=>document.getElementById('wo-rest-area')?.scrollIntoView({behavior:'smooth',block:'center'}),150);
 }
 
 function woStartRest(){
-  if(!WO) return;
+  if(!WO)return;
   clearInterval(WO.restTimer);
-  WO.restRemaining = 60; WO.restTotal = 60;
+  WO.restRemaining=60;WO.restTotal=60;
   woRenderRest();
-  WO.restTimer = setInterval(()=>{
+  WO.restTimer=setInterval(()=>{
+    if(!WO)return;
     WO.restRemaining--;
     if(WO.restRemaining<=0){
       clearInterval(WO.restTimer);
       vib([200,100,200,100,300]);
-      const a=document.getElementById('wo-rest-area');
-      if(a) a.innerHTML='';
+      const a=document.getElementById('wo-rest-area');if(a)a.innerHTML='';
       toast('⏰ Descansou! Hora de treinar!');
-    } else { woUpdateRing(); }
+    } else woUpdateRing();
   },1000);
 }
 
 function woRenderRest(){
-  const el=document.getElementById('wo-rest-area');
-  if(!el) return;
-  el.innerHTML=`<div style="background:var(--card);border:1px solid var(--blue);border-radius:var(--rl);box-shadow:0 0 20px rgba(77,148,255,0.15);margin-bottom:12px">
-    <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
-      <p style="font-size:13px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em">⏸ Descanso</p>
-    </div>
+  const el=document.getElementById('wo-rest-area');if(!el||!WO)return;
+  const circ=2*Math.PI*54;
+  el.innerHTML=`<div style="background:var(--card);border:1px solid var(--blue);border-radius:var(--rl);box-shadow:0 0 20px rgba(77,148,255,0.12);margin-bottom:12px">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border)"><p style="font-size:12px;font-weight:700;color:var(--blue2);text-transform:uppercase;letter-spacing:0.08em">⏸ Descanso</p></div>
     <div style="padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px">
       <div style="position:relative;width:120px;height:120px">
         <svg width="120" height="120" style="transform:rotate(-90deg)">
           <circle cx="60" cy="60" r="54" fill="none" stroke="var(--border)" stroke-width="6"/>
-          <circle cx="60" cy="60" r="54" fill="none" stroke="var(--blue)" stroke-width="6" id="rest-ring" stroke-linecap="round" stroke-dasharray="${2*Math.PI*54} ${2*Math.PI*54}"/>
+          <circle cx="60" cy="60" r="54" fill="none" stroke="var(--blue)" stroke-width="6" id="rest-ring" stroke-linecap="round" stroke-dasharray="${circ} ${circ}"/>
         </svg>
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <span style="font-family:var(--fd);font-size:34px;line-height:1" id="rest-num">60</span>
+          <span style="font-family:var(--fd);font-size:34px;line-height:1" id="rest-num">${WO.restRemaining}</span>
           <span style="font-size:11px;color:var(--muted)">seg</span>
         </div>
       </div>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(-15)">-15s</button>
+        <button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(-15)">−15s</button>
         <button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(15)">+15s</button>
         <button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(30)">+30s</button>
       </div>
       <button class="btn btn-danger" onclick="woSkipRest()">Pular ▶</button>
-    </div>
-  </div>`;
+    </div></div>`;
   woUpdateRing();
 }
 
 function woUpdateRing(){
-  if(!WO) return;
+  if(!WO)return;
   const num=document.getElementById('rest-num');
   const ring=document.getElementById('rest-ring');
-  if(!num||!ring) return;
+  if(!num||!ring)return;
   num.textContent=WO.restRemaining;
   num.style.color=WO.restRemaining<=10?'var(--orange)':'var(--txt)';
   const circ=2*Math.PI*54;
-  ring.setAttribute('stroke-dasharray',`${circ*(WO.restRemaining/WO.restTotal)} ${circ}`);
+  ring.setAttribute('stroke-dasharray',(circ*(WO.restRemaining/WO.restTotal))+' '+circ);
   ring.setAttribute('stroke',WO.restRemaining<=10?'var(--orange)':'var(--blue)');
 }
-function woRestAdd(d){
-  if(!WO) return;
-  WO.restRemaining=Math.max(0,WO.restRemaining+d);
-  WO.restTotal=Math.max(WO.restTotal,WO.restRemaining);
-  woUpdateRing();
-}
-function woSkipRest(){
-  if(!WO) return;
-  clearInterval(WO.restTimer);
-  const a=document.getElementById('wo-rest-area');
-  if(a) a.innerHTML='';
-}
+function woRestAdd(d){if(!WO)return;WO.restRemaining=Math.max(0,WO.restRemaining+d);WO.restTotal=Math.max(WO.restTotal,WO.restRemaining);woUpdateRing();}
+function woSkipRest(){if(!WO)return;clearInterval(WO.restTimer);const a=document.getElementById('wo-rest-area');if(a)a.innerHTML='';}
 
 function woCheckDone(){
-  if(!WO) return;
-  const all = WO.workout.exercises.every(ex=>WO.sets[ex.id]>=ex.sets);
-  const fa=document.getElementById('wo-finish-area');
-  if(!fa) return;
-  if(all){
-    fa.innerHTML=`<button class="btn btn-green pulse" onclick="woFinish()" style="font-size:18px;min-height:60px">🏆 Finalizar Treino</button>`;
-  } else if(woDoneSets()>0){
-    fa.innerHTML=`<button class="btn btn-ghost" onclick="woAskFinish()" style="font-size:14px">Encerrar antecipado</button>`;
-  } else {
-    fa.innerHTML='';
-  }
+  if(!WO)return;
+  const fa=document.getElementById('wo-finish-area');if(!fa)return;
+  const all=WO.workout.exercises.every(ex=>WO.sets[ex.id]>=ex.sets);
+  if(all)fa.innerHTML=`<button class="btn btn-green pulse" onclick="woAskFinish()" style="font-size:18px;min-height:60px">🏆 Finalizar Treino</button>`;
+  else if(woDoneSets()>0)fa.innerHTML=`<button class="btn btn-ghost" onclick="woAskFinish()" style="font-size:14px">Encerrar antecipado</button>`;
+  else fa.innerHTML='';
 }
 
 function woAskFinish(){
-  openModal(`
-    <h2 style="font-family:var(--fd);font-size:26px;margin-bottom:8px">Encerrar Treino?</h2>
-    <p style="color:var(--txt2);margin-bottom:20px;font-size:14px">Tempo: ${fmtDur(WO?WO.elapsed:0)} · ${woDoneSets()}/${woTotalSets()} séries</p>
+  openModal(`<h2 style="font-family:var(--fd);font-size:26px;margin-bottom:16px">Como foi o treino?</h2>
+    <p style="color:var(--txt2);font-size:13px;margin-bottom:14px">Duração: ${fmtDur(WO?WO.elapsed:0)} · ${woDoneSets()}/${woTotalSets()} séries</p>
+    <p class="lbl" style="margin-bottom:10px">Como você se sentiu?</p>
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="feeling-btn" id="feel-easy"   onclick="selectFeeling('easy')"  ><span class="feel-ico">😊</span>Fácil</button>
+      <button class="feeling-btn" id="feel-medium" onclick="selectFeeling('medium')"><span class="feel-ico">😤</span>Moderado</button>
+      <button class="feeling-btn" id="feel-hard"   onclick="selectFeeling('hard')"  ><span class="feel-ico">🥵</span>Difícil</button>
+    </div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <button class="btn btn-green" onclick="closeModal();woFinish()">💾 Salvar e Finalizar</button>
       <button class="btn btn-danger" onclick="closeModal();stopWorkout();showPage('home')">🗑 Descartar</button>
@@ -659,14 +597,21 @@ function woAskFinish(){
     </div>`);
 }
 
+function selectFeeling(f){
+  if(WO)WO.feeling=f;
+  document.querySelectorAll('.feeling-btn').forEach(b=>b.classList.remove('selected'));
+  const el=document.getElementById('feel-'+f);if(el)el.classList.add('selected');
+}
+
 function woFinish(){
-  if(!WO) return;
+  if(!WO)return;
   const session={
-    id:uid(), workoutId:WO.workout.id, workoutName:WO.workout.name, type:'gym',
-    date:new Date().toISOString(), duration:Math.ceil(WO.elapsed/60),
+    id:uid(),workoutId:WO.workout.id,workoutName:WO.workout.name,type:'gym',
+    date:new Date().toISOString(),duration:Math.ceil(WO.elapsed/60),
+    feeling:WO.feeling,
     exercises:WO.workout.exercises.map(ex=>({
-      name:ex.name, sets:ex.sets, completedSets:WO.sets[ex.id]||0,
-      weight:WO.data[ex.id]?.weight||0, reps:WO.data[ex.id]?.reps||ex.reps,
+      name:ex.name,sets:ex.sets,completedSets:WO.sets[ex.id]||0,
+      weight:WO.data[ex.id]?.weight||0,reps:WO.data[ex.id]?.reps||ex.reps,
     })),
   };
   saveSession(session);
@@ -676,22 +621,23 @@ function woFinish(){
 }
 
 // ── HISTORY ───────────────────────────────────────────────────────────
+const FEELING_LABEL={easy:'😊 Fácil',medium:'😤 Moderado',hard:'🥵 Difícil'};
 function renderHistory(){
   const hist=getHistory();
-  document.getElementById('hist-sub').textContent=hist.length+' treinos registrados';
+  document.getElementById('hist-sub').textContent=hist.length+' atividades registradas';
   const el=document.getElementById('hist-body');
-  if(!hist.length){ el.innerHTML=`<div class="empty"><div class="empty-ico">📋</div><p>Nenhum treino.<br>Complete o primeiro!</p></div>`; return; }
+  if(!hist.length){el.innerHTML='<div class="empty"><div style="font-size:48px">📋</div><p>Nenhum treino ainda.</p></div>';return;}
   el.innerHTML=hist.map(s=>`
-    <div onclick="showPage('detail','${s.id}')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${s.type==='tennis'?'var(--green)':'var(--blue2)'};border-radius:var(--rl);padding:16px;margin-bottom:10px;cursor:pointer">
+    <div onclick="showPage('detail','${s.id}')" style="background:var(--card);border:1px solid var(--border);border-left:3px solid ${s.type==='tennis'?'var(--green)':s.type==='activity'?'var(--purple)':'var(--blue2)'};border-radius:var(--rl);padding:16px;margin-bottom:10px;cursor:pointer">
       <div style="display:flex;align-items:flex-start;gap:12px">
-        <span style="font-size:28px;flex-shrink:0">${s.type==='tennis'?'🎾':'🏋️'}</span>
+        <span style="font-size:28px;flex-shrink:0">${s.type==='tennis'?'🎾':s.type==='activity'?'🏃':'🏋️'}</span>
         <div style="flex:1">
           <div style="font-weight:700;font-size:16px;margin-bottom:4px">${esc(s.workoutName||'Treino')}</div>
-          <div style="font-size:13px;color:var(--txt2);margin-bottom:8px">${fmtDate(s.date)} · ${fmtMin(s.duration||0)}</div>
+          <div style="font-size:13px;color:var(--txt2);margin-bottom:6px">${fmtDate(s.date)} · ${fmtMin(s.duration||0)}${s.feeling?` · ${FEELING_LABEL[s.feeling]}`:''}</div>
           <div>${(s.exercises||[]).slice(0,4).map(ex=>`<span class="badge">${esc(ex.name)}${ex.weight>0?' '+ex.weight+'kg':''}</span>`).join('')}</div>
-          ${s.notes?`<p style="font-size:13px;color:var(--txt2);margin-top:8px;font-style:italic">"${esc(s.notes)}"</p>`:''}
+          ${s.notes?`<p style="font-size:13px;color:var(--txt2);margin-top:6px;font-style:italic">"${esc(s.notes)}"</p>`:''}
         </div>
-        <button onclick="event.stopPropagation();delSession('${s.id}');renderHistory()" style="background:none;border:none;color:var(--muted);font-size:18px;padding:4px;flex-shrink:0;cursor:pointer">🗑</button>
+        <button onclick="event.stopPropagation();delSession('${s.id}');renderHistory()" style="background:none;border:none;color:var(--muted);font-size:18px;padding:4px;cursor:pointer">🗑</button>
       </div>
     </div>`).join('');
 }
@@ -699,15 +645,16 @@ function renderHistory(){
 // ── DETAIL ────────────────────────────────────────────────────────────
 function renderDetail(id){
   const s=getHistory().find(x=>x.id===id);
-  if(!s){ showPage('history'); return; }
+  if(!s){showPage('history');return;}
   document.getElementById('detail-hdr').innerHTML=`
     <button onclick="showPage('history')" style="background:none;border:none;color:var(--txt2);font-size:14px;margin-bottom:8px;padding:0;cursor:pointer;font-family:var(--fb)">← Voltar</button>
     <div style="font-family:var(--fd);font-size:26px">${esc(s.workoutName||'Treino')}</div>
     <p style="font-size:13px;color:var(--txt2)">${new Date(s.date).toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>`;
   document.getElementById('detail-body').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+    <div style="display:grid;grid-template-columns:1fr 1fr${s.feeling?` 1fr`:''};gap:10px;margin-bottom:20px">
       <div class="card" style="text-align:center"><div style="font-family:var(--fd);font-size:26px;color:var(--blue2)">${fmtMin(s.duration||0)}</div><div style="font-size:12px;color:var(--muted)">Duração</div></div>
-      <div class="card" style="text-align:center"><div style="font-family:var(--fd);font-size:26px;color:var(--orange)">${(s.exercises||[]).length||'-'}</div><div style="font-size:12px;color:var(--muted)">Exercícios</div></div>
+      <div class="card" style="text-align:center"><div style="font-family:var(--fd);font-size:26px;color:var(--orange)">${(s.exercises||[]).length}</div><div style="font-size:12px;color:var(--muted)">Exercícios</div></div>
+      ${s.feeling?`<div class="card" style="text-align:center"><div style="font-size:26px">${s.feeling==='easy'?'😊':s.feeling==='medium'?'😤':'🥵'}</div><div style="font-size:12px;color:var(--muted)">${s.feeling==='easy'?'Fácil':s.feeling==='medium'?'Moderado':'Difícil'}</div></div>`:''}
     </div>
     ${(s.exercises||[]).map(ex=>`
       <div class="card" style="padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
@@ -718,9 +665,9 @@ function renderDetail(id){
     <button class="btn btn-ghost" onclick="showPage('history')" style="margin-top:16px">← Voltar ao Histórico</button>`;
 }
 
-// ── STATS ─────────────────────────────────────────────────────────────
+// ── STATS + CALENDAR ──────────────────────────────────────────────────
 function renderStats(){
-  const hist=getHistory(), wk=weekStats(), wh=getWeights(), now=new Date();
+  const hist=getHistory(),wk=weekStats(),wh=getWeights(),now=new Date();
   const mo=hist.filter(s=>{const d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
   const totalH=hist.reduce((a,s)=>a+(s.duration||0),0);
   const counts={};
@@ -729,71 +676,364 @@ function renderStats(){
   const maxC=top[0]?.[1]||1;
   const exs=Object.keys(wh);
 
-  document.getElementById('stats-body').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
-      ${sCard('📅','Semana',wk.n,'treinos','var(--blue2)')}
-      ${sCard('⏱️','Semana',fmtMin(wk.mins),'','var(--orange)')}
-      ${sCard('📆','Este mês',mo.length,'treinos','var(--green)')}
-      ${sCard('🏆','Total',Math.round(totalH/60*10)/10,'h','#a371f7')}
-    </div>
-    ${top.length?`
-      <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Mais Realizados</p>
-      <div class="card" style="margin-bottom:20px">
-        ${top.map(([n,c],i)=>`<div style="margin-bottom:${i<top.length-1?'12px':'0'}">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px;font-weight:600">${esc(n)}</span><span style="font-size:13px;color:var(--muted)">${c} séries</span></div>
-          <div class="prog"><div class="prog-fill" style="width:${c/maxC*100}%"></div></div>
-        </div>`).join('')}
-      </div>`:''}
-    ${exs.length?`
-      <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Evolução de Carga</p>
-      <select id="sel-ex" onchange="renderWeightChart()" style="margin-bottom:12px">
-        ${exs.map(e=>`<option value="${esc(e)}">${esc(e)}</option>`).join('')}
-      </select>
-      <div id="wt-chart"></div>`:''}
-    ${!hist.length?`<div class="empty"><div class="empty-ico">📊</div><p>Complete treinos para ver suas estatísticas!</p></div>`:''}`;
-  if(exs.length) renderWeightChart();
-}
+  // Calendar
+  const year=now.getFullYear(),month=now.getMonth();
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const monthNames=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-function sCard(ico,lbl,val,unit,color){
-  return `<div class="card" style="text-align:center;padding:16px"><div style="font-size:22px;margin-bottom:4px">${ico}</div><div style="font-family:var(--fd);font-size:26px;color:${color};line-height:1">${val}${unit?` <span style="font-size:16px">${unit}</span>`:''}</div><div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.3">${lbl}</div></div>`;
+  // Build map of date -> activity types
+  const dayMap={};
+  hist.forEach(s=>{
+    const d=new Date(s.date);
+    if(d.getMonth()===month&&d.getFullYear()===year){
+      const key=d.getDate();
+      if(!dayMap[key])dayMap[key]=new Set();
+      dayMap[key].add(s.type||'gym');
+    }
+  });
+
+  const dayHeaders=['D','S','T','Q','Q','S','S'].map(d=>`<div style="text-align:center;font-size:11px;color:var(--muted);font-weight:600;padding:4px 0">${d}</div>`).join('');
+  let calCells=Array(firstDay).fill('<div class="cal-day empty"></div>').join('');
+  for(let d=1;d<=daysInMonth;d++){
+    const types=dayMap[d];
+    const isToday=d===now.getDate();
+    let cls='cal-day';
+    if(types){
+      if(types.size>1)cls+=' has-multi';
+      else if(types.has('tennis'))cls+=' has-tennis';
+      else if(types.has('activity'))cls+=' has-activity';
+      else cls+=' has-gym';
+    }
+    if(isToday)cls+=' today';
+    calCells+=`<div class="${cls}">${d}</div>`;
+  }
+
+  const feelingStats={easy:0,medium:0,hard:0};
+  hist.filter(s=>s.feeling).forEach(s=>feelingStats[s.feeling]++);
+  const totalFeelings=Object.values(feelingStats).reduce((a,v)=>a+v,0);
+
+  const el=document.getElementById('stats-body');
+  el.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">
+      ${[['📅','Semana',wk.n,'treinos','var(--blue2)'],['⏱️','Semana',fmtMin(wk.mins),'','var(--orange)'],['📆','Este mês',mo.length,'treinos','var(--green)'],['🏆','Total',Math.round(totalH/60*10)/10,'h','var(--purple)']].map(([ico,lbl,val,unit,color])=>`
+      <div class="card" style="text-align:center;padding:16px"><div style="font-size:22px;margin-bottom:4px">${ico}</div><div style="font-family:var(--fd);font-size:26px;color:${color}">${val}${unit?`<span style="font-size:16px"> ${unit}</span>`:''}</div><div style="font-size:11px;color:var(--muted);margin-top:4px">${lbl}</div></div>`).join('')}
+    </div>
+
+    <p class="lbl" style="margin-bottom:8px">Calendário — ${monthNames[month]} ${year}</p>
+    <div class="card" style="margin-bottom:8px">
+      <div class="cal-grid">${dayHeaders}</div>
+      <div class="cal-grid">${calCells}</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--txt2)">
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(77,148,255,0.3);margin-right:4px"></span>Musculação</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(63,185,80,0.3);margin-right:4px"></span>Tênis</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(163,113,247,0.3);margin-right:4px"></span>Atividade</span>
+        <span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;box-shadow:0 0 0 2px var(--orange);margin-right:4px"></span>Hoje</span>
+      </div>
+    </div>
+
+    ${totalFeelings>0?`
+    <p class="lbl" style="margin-bottom:8px;margin-top:16px">Como você tem se sentido</p>
+    <div class="card" style="margin-bottom:20px;display:flex;gap:0">
+      ${[['easy','😊','Fácil','var(--green)'],['medium','😤','Moderado','var(--orange)'],['hard','🥵','Difícil','var(--red)']].map(([k,ico,lbl,color])=>`
+      <div style="flex:1;text-align:center;padding:12px 4px;border-right:1px solid var(--border)">
+        <div style="font-size:22px">${ico}</div>
+        <div style="font-family:var(--fd);font-size:22px;color:${color}">${feelingStats[k]}</div>
+        <div style="font-size:11px;color:var(--muted)">${lbl}</div>
+      </div>`).join('')}
+    </div>`:''}
+
+    ${top.length?`<p class="lbl" style="margin-bottom:12px;margin-top:4px">Mais Realizados</p>
+    <div class="card" style="margin-bottom:20px">${top.map(([n,c],i)=>`
+      <div style="margin-bottom:${i<top.length-1?'12px':'0'}">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px;font-weight:600">${esc(n)}</span><span style="font-size:13px;color:var(--muted)">${c} séries</span></div>
+        <div class="prog"><div class="prog-fill" style="width:${c/maxC*100}%"></div></div>
+      </div>`).join('')}</div>`:''}
+
+    ${exs.length?`<p class="lbl" style="margin-bottom:12px">Evolução de Carga</p>
+    <select id="sel-ex" onchange="renderWeightChart()" style="margin-bottom:12px">${exs.map(e=>`<option value="${esc(e)}">${esc(e)}</option>`).join('')}</select>
+    <div id="wt-chart"></div>`:''}
+    ${!hist.length?'<div class="empty"><div style="font-size:48px">📊</div><p>Complete treinos para ver estatísticas!</p></div>':''}`;
+
+  if(exs.length)renderWeightChart();
 }
 
 function renderWeightChart(){
-  const sel=document.getElementById('sel-ex'); if(!sel) return;
-  const name=sel.value, wh=getWeights();
+  const sel=document.getElementById('sel-ex');if(!sel)return;
+  const name=sel.value,wh=getWeights();
   const data=(wh[name]||[]).slice(-10);
-  const el=document.getElementById('wt-chart'); if(!el) return;
+  const el=document.getElementById('wt-chart');if(!el)return;
   if(!data.length){el.innerHTML='';return;}
   const maxW=Math.max(...data.map(d=>d.weight||0),1);
   const last=data[data.length-1]?.weight||0;
   const best=Math.max(...data.map(d=>d.weight||0));
-  el.innerHTML=`<div class="card">
-    <div style="display:flex;gap:12px;margin-bottom:16px">
-      <div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--blue2)">${last}kg</div><div style="font-size:11px;color:var(--muted)">Última</div></div>
-      <div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--orange)">${best}kg</div><div style="font-size:11px;color:var(--muted)">Melhor</div></div>
+  el.innerHTML=`<div class="card"><div style="display:flex;gap:12px;margin-bottom:16px">
+    <div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--blue2)">${last}kg</div><div style="font-size:11px;color:var(--muted)">Última</div></div>
+    <div style="flex:1;text-align:center"><div style="font-family:var(--fd);font-size:24px;color:var(--orange)">${best}kg</div><div style="font-size:11px;color:var(--muted)">Melhor</div></div>
+  </div>
+  ${data.length>1?`<div style="display:flex;align-items:flex-end;gap:4px;height:80px">${data.map((d,i)=>`<div style="flex:1;height:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${(d.weight||0)/maxW*100}%;background:${i===data.length-1?'linear-gradient(180deg,var(--blue),var(--bluedim))':'var(--border)'};border-radius:3px 3px 0 0"></div></div>`).join('')}</div>`:''}</div>`;
+}
+
+// ── WATER ─────────────────────────────────────────────────────────────
+function renderWater(){
+  const ml=getWaterToday(),meta=getWaterMeta();
+  const pct=Math.min(100,Math.round(ml/meta*100));
+  const cups=Math.ceil(meta/250); // number of 250ml drops
+  const filled=Math.round(ml/250);
+  document.getElementById('water-sub').textContent=`${ml}ml de ${meta}ml — ${pct}%`;
+
+  const drops=Array.from({length:cups},(_,i)=>`<div class="drop ${i<filled?'filled':''}" onclick="addWater(250);renderWater()">💧</div>`).join('');
+
+  const quickBtns=[150,200,250,350,500].map(v=>`<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:13px" onclick="addWater(${v});renderWater()">+${v}ml</button>`).join('');
+
+  document.getElementById('water-body').innerHTML=`
+    <div class="card" style="text-align:center;padding:24px;margin-bottom:16px">
+      <div style="font-family:var(--fd);font-size:52px;color:var(--teal);line-height:1">${ml}<span style="font-size:24px">ml</span></div>
+      <div style="font-size:14px;color:var(--txt2);margin:6px 0 16px">Meta: ${meta}ml · ${pct}%</div>
+      <div class="prog" style="height:8px;margin-bottom:8px"><div class="prog-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--teal),#06b6d4)"></div></div>
+      ${pct>=100?'<p style="font-size:13px;color:var(--teal);font-weight:600;margin-top:8px">🎉 Meta atingida!</p>':''}
     </div>
-    ${data.length>1?`<div style="display:flex;align-items:flex-end;gap:4px;height:80px">
-      ${data.map((d,i)=>{const h=(d.weight||0)/maxW*100;return`<div style="flex:1;height:100%;display:flex;align-items:flex-end"><div style="width:100%;height:${h}%;background:${i===data.length-1?'linear-gradient(180deg,var(--blue),var(--bluedim))':'var(--border)'};border-radius:3px 3px 0 0"></div></div>`;}).join('')}
+
+    <p class="lbl" style="margin-bottom:10px">Copos de 250ml — toque para marcar</p>
+    <div class="water-drops" style="margin-bottom:20px">${drops}</div>
+
+    <p class="lbl" style="margin-bottom:10px">Adicionar</p>
+    <div style="display:flex;gap:8px;margin-bottom:16px">${quickBtns}</div>
+    <div style="display:flex;gap:8px;margin-bottom:24px">
+      <input type="number" id="water-custom" placeholder="Outro valor (ml)" style="flex:1"/>
+      <button class="btn btn-blue" style="width:auto;padding:10px 16px;min-height:44px" onclick="const v=+document.getElementById('water-custom').value;if(v>0){addWater(v);renderWater();}">Adicionar</button>
     </div>
-    <div style="display:flex;justify-content:space-between;margin-top:4px">
-      <span style="font-size:10px;color:var(--muted)">${new Date(data[0].date).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span>
-      <span style="font-size:10px;color:var(--muted)">${new Date(data[data.length-1].date).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</span>
-    </div>`:''}
-  </div>`;
+
+    <p class="lbl" style="margin-bottom:10px">Ajustar meta diária</p>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      ${[1500,2000,2500,3000,3500].map(v=>`<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:12px;${meta===v?'border-color:var(--blue);color:var(--blue2)':''}" onclick="setWaterMeta(${v});renderWater()">${v}ml</button>`).join('')}
+    </div>
+    <button class="btn btn-danger" style="margin-top:12px" onclick="const w=ls(KEYS.WATER)||{};w[getTodayKey()]=0;lss(KEYS.WATER,w);renderWater()">🔄 Resetar hoje</button>`;
+}
+
+// ── FOOD ──────────────────────────────────────────────────────────────
+const MEAL_NAMES={breakfast:'☀️ Café da Manhã',lunch:'🌤️ Almoço',snack:'🍎 Lanche',dinner:'🌙 Jantar'};
+
+const FOOD_SUGGESTIONS={
+  breakfast:['Ovos mexidos com torrada integral','Iogurte grego com granola e frutas','Tapioca com queijo e presunto','Aveia com banana e mel','Vitamina de frutas com whey','Pão integral com pasta de amendoim'],
+  lunch:['Arroz integral, feijão e frango grelhado','Salada de quinoa com legumes','Macarrão integral ao molho de tomate','Peixe assado com legumes','Bowl de proteína com arroz e vegetais','Frango ao curry com arroz basmati'],
+  snack:['Frutas variadas','Castanhas e amêndoas','Iogurte natural','Barra de cereal integral','Maçã com pasta de amendoim','Hummus com cenoura'],
+  dinner:['Sopa de legumes com frango','Omelete com vegetais','Filé de peixe grelhado com salada','Frango com brócolis no vapor','Carne magra com batata doce','Wrap integral com atum'],
+};
+
+function renderFood(){
+  const today=getFoodToday();
+  const meals=['breakfast','lunch','snack','dinner'];
+
+  const mealCards=meals.map(meal=>{
+    const items=today[meal]||[];
+    const itemsHtml=items.length
+      ?items.map((item,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+          <span style="flex:1;font-size:14px">${esc(item)}</span>
+          <button onclick="removeFoodItem('${meal}',${i})" style="background:none;border:none;color:var(--muted);font-size:16px;padding:2px;cursor:pointer">✕</button>
+        </div>`).join('')
+      :`<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhum item registrado</p>`;
+
+    const suggestions=FOOD_SUGGESTIONS[meal].slice(0,3).map(s=>`<button onclick="addFoodItem('${meal}','${s.replace(/'/g,"\\'")}');renderFood()" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:7px 10px;font-size:12px;color:var(--txt2);cursor:pointer;text-align:left;font-family:var(--fb)">${s}</button>`).join('');
+
+    return`<div class="meal-card">
+      <div class="meal-hdr" onclick="toggleMeal('${meal}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:18px">${MEAL_NAMES[meal].split(' ')[0]}</span>
+          <div>
+            <div style="font-weight:700;font-size:15px">${MEAL_NAMES[meal].slice(2)}</div>
+            <div style="font-size:12px;color:var(--muted)">${items.length} item${items.length!==1?'s':''}</div>
+          </div>
+        </div>
+        <span style="color:var(--muted)" id="arrow-${meal}">▼</span>
+      </div>
+      <div class="meal-body" id="meal-${meal}">
+        ${itemsHtml}
+        <div style="display:flex;gap:8px;margin-top:10px;margin-bottom:10px">
+          <input id="food-input-${meal}" placeholder="Adicionar alimento..." style="flex:1;font-size:14px;padding:8px 10px"/>
+          <button class="btn btn-blue" style="width:auto;padding:8px 14px;min-height:38px;font-size:13px" onclick="addFoodFromInput('${meal}')">+ Add</button>
+        </div>
+        <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Sugestões</p>
+        <div style="display:flex;flex-direction:column;gap:6px">${suggestions}</div>
+        <button onclick="showAllSuggestions('${meal}')" style="background:none;border:none;color:var(--blue2);font-size:13px;cursor:pointer;padding:8px 0;font-family:var(--fb)">Ver mais sugestões →</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('food-body').innerHTML=`
+    <p style="font-size:13px;color:var(--txt2);margin-bottom:16px">📅 ${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}</p>
+    ${mealCards}`;
+}
+
+function toggleMeal(meal){
+  const body=document.getElementById('meal-'+meal);
+  const arrow=document.getElementById('arrow-'+meal);
+  if(!body)return;
+  const open=body.classList.contains('open');
+  body.classList.toggle('open');
+  if(arrow)arrow.textContent=open?'▼':'▲';
+}
+
+function addFoodFromInput(meal){
+  const inp=document.getElementById('food-input-'+meal);
+  if(!inp||!inp.value.trim())return;
+  addFoodItem(meal,inp.value.trim());
+  inp.value='';
+  renderFood();
+  setTimeout(()=>toggleMeal(meal),50);
+}
+
+function addFoodItem(meal,item){
+  const today=getFoodToday();
+  today[meal]=[...(today[meal]||[]),item];
+  saveFoodToday(today);
+}
+
+function removeFoodItem(meal,idx){
+  const today=getFoodToday();
+  today[meal]=(today[meal]||[]).filter((_,i)=>i!==idx);
+  saveFoodToday(today);
+  renderFood();
+}
+
+function showAllSuggestions(meal){
+  const suggs=FOOD_SUGGESTIONS[meal];
+  openModal(`<h3 style="font-family:var(--fd);font-size:22px;margin-bottom:16px">Sugestões — ${MEAL_NAMES[meal].slice(2)}</h3>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${suggs.map(s=>`<button onclick="addFoodItem('${meal}','${s.replace(/'/g,"\\'")}');closeModal();renderFood()" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:14px;color:var(--txt);cursor:pointer;text-align:left;font-family:var(--fb)">${s}</button>`).join('')}
+    </div>`);
+}
+
+// ── TENNIS ────────────────────────────────────────────────────────────
+function renderTennis(){
+  document.getElementById('tennis-body').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div><span class="lbl">Data</span><input type="date" id="t-date" value="${new Date().toISOString().split('T')[0]}"/></div>
+      <div><span class="lbl">Duração (minutos)</span>
+        <div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="tStep(-15)">−</button><input type="number" id="t-dur" value="60" min="1"/><button class="sbtn" onclick="tStep(15)">+</button></div>
+        <div style="display:flex;gap:8px">${[30,45,60,90,120].map(t=>`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById('t-dur').value=${t}">${t}min</button>`).join('')}</div>
+      </div>
+      <div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi?" rows="3" style="resize:vertical"></textarea></div>
+      <div><span class="lbl">Como você se sentiu?</span>
+        <div style="display:flex;gap:8px">
+          <button class="feeling-btn" id="tf-easy"   onclick="selectTFeeling('easy')"  ><span class="feel-ico">😊</span>Fácil</button>
+          <button class="feeling-btn" id="tf-medium" onclick="selectTFeeling('medium')"><span class="feel-ico">😤</span>Moderado</button>
+          <button class="feeling-btn" id="tf-hard"   onclick="selectTFeeling('hard')"  ><span class="feel-ico">🥵</span>Difícil</button>
+        </div>
+      </div>
+      <button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Tênis</button>
+    </div>`;
+  window._tFeeling=null;
+}
+function selectTFeeling(f){
+  window._tFeeling=f;
+  document.querySelectorAll('[id^="tf-"]').forEach(b=>b.classList.remove('selected'));
+  const el=document.getElementById('tf-'+f);if(el)el.classList.add('selected');
+}
+function tStep(d){const i=document.getElementById('t-dur');if(i)i.value=Math.max(5,(+i.value||60)+d);}
+function saveTennis(){
+  const dur=+(document.getElementById('t-dur')?.value)||60;
+  const notes=document.getElementById('t-notes')?.value||'';
+  const date=document.getElementById('t-date')?.value||new Date().toISOString().split('T')[0];
+  saveSession({id:uid(),type:'tennis',workoutName:'Tênis 🎾',date:new Date(date+'T12:00:00').toISOString(),duration:dur,notes,feeling:window._tFeeling,exercises:[]});
+  toast('🎾 Tênis salvo!');
+  setTimeout(()=>showPage('history'),700);
+}
+
+// ── ACTIVITIES ────────────────────────────────────────────────────────
+const ACTIVITIES=[
+  {id:'run',name:'Corrida',ico:'🏃'},
+  {id:'bike',name:'Ciclismo',ico:'🚴'},
+  {id:'swim',name:'Natação',ico:'🏊'},
+  {id:'yoga',name:'Yoga',ico:'🧘'},
+  {id:'walk',name:'Caminhada',ico:'🚶'},
+  {id:'dance',name:'Dança',ico:'💃'},
+  {id:'jump',name:'Pular Corda',ico:'⚡'},
+  {id:'hiit',name:'HIIT',ico:'🔥'},
+  {id:'pilates',name:'Pilates',ico:'🤸'},
+  {id:'box',name:'Boxe',ico:'🥊'},
+  {id:'skate',name:'Skate',ico:'🛹'},
+  {id:'surf',name:'Surf',ico:'🏄'},
+  {id:'climb',name:'Escalada',ico:'🧗'},
+  {id:'row',name:'Remo',ico:'🚣'},
+  {id:'football',name:'Futebol',ico:'⚽'},
+  {id:'basketball',name:'Basquete',ico:'🏀'},
+  {id:'volleyball',name:'Vôlei',ico:'🏐'},
+  {id:'hike',name:'Trilha',ico:'⛰️'},
+  {id:'stretch',name:'Alongamento',ico:'🙆'},
+  {id:'other',name:'Outro',ico:'🎯'},
+];
+
+let _actSelected=null;
+function renderActivity(){
+  _actSelected=null;
+  const grid=ACTIVITIES.map(a=>`
+    <button id="act-${a.id}" onclick="selectActivity('${a.id}')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 6px;border-radius:var(--r);border:1px solid var(--border);background:var(--card);cursor:pointer;font-family:var(--fb);font-size:11px;font-weight:600;color:var(--txt2);transition:all 0.2s">
+      <span style="font-size:26px">${a.ico}</span>
+      <span>${a.name}</span>
+    </button>`).join('');
+
+  document.getElementById('activity-body').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div>
+        <span class="lbl" style="margin-bottom:10px">Selecione a atividade</span>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">${grid}</div>
+      </div>
+      <div><span class="lbl">Data</span><input type="date" id="act-date" value="${new Date().toISOString().split('T')[0]}"/></div>
+      <div><span class="lbl">Duração (minutos)</span>
+        <div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="actStep(-5)">−</button><input type="number" id="act-dur" value="30" min="1"/><button class="sbtn" onclick="actStep(5)">+</button></div>
+        <div style="display:flex;gap:8px">${[15,30,45,60,90].map(t=>`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById('act-dur').value=${t}">${t}min</button>`).join('')}</div>
+      </div>
+      <div><span class="lbl">Observações</span><textarea id="act-notes" placeholder="Como foi?" rows="2" style="resize:vertical"></textarea></div>
+      <div><span class="lbl">Como você se sentiu?</span>
+        <div style="display:flex;gap:8px">
+          <button class="feeling-btn" id="af-easy"   onclick="selectAFeeling('easy')"  ><span class="feel-ico">😊</span>Fácil</button>
+          <button class="feeling-btn" id="af-medium" onclick="selectAFeeling('medium')"><span class="feel-ico">😤</span>Moderado</button>
+          <button class="feeling-btn" id="af-hard"   onclick="selectAFeeling('hard')"  ><span class="feel-ico">🥵</span>Difícil</button>
+        </div>
+      </div>
+      <button class="btn btn-orange" onclick="saveActivity()" style="font-size:17px;min-height:56px">💾 Salvar Atividade</button>
+    </div>`;
+  window._aFeeling=null;
+}
+
+function selectActivity(id){
+  _actSelected=id;
+  document.querySelectorAll('[id^="act-"]').forEach(b=>{
+    b.style.borderColor='var(--border)';b.style.background='var(--card)';b.style.color='var(--txt2)';
+  });
+  const el=document.getElementById('act-'+id);
+  if(el){el.style.borderColor='var(--purple)';el.style.background='rgba(163,113,247,0.12)';el.style.color='var(--purple)';}
+}
+function selectAFeeling(f){
+  window._aFeeling=f;
+  document.querySelectorAll('[id^="af-"]').forEach(b=>b.classList.remove('selected'));
+  const el=document.getElementById('af-'+f);if(el)el.classList.add('selected');
+}
+function actStep(d){const i=document.getElementById('act-dur');if(i)i.value=Math.max(5,(+i.value||30)+d);}
+function saveActivity(){
+  if(!_actSelected){toast('Selecione uma atividade',false);return;}
+  const act=ACTIVITIES.find(a=>a.id===_actSelected);
+  const dur=+(document.getElementById('act-dur')?.value)||30;
+  const notes=document.getElementById('act-notes')?.value||'';
+  const date=document.getElementById('act-date')?.value||new Date().toISOString().split('T')[0];
+  saveSession({id:uid(),type:'activity',workoutName:act.ico+' '+act.name,date:new Date(date+'T12:00:00').toISOString(),duration:dur,notes,feeling:window._aFeeling,exercises:[]});
+  toast('🏃 Atividade salva!');
+  setTimeout(()=>showPage('history'),700);
 }
 
 // ── WORKOUTS MANAGEMENT ───────────────────────────────────────────────
-let editingWoId = null;
-
+let editingWoId=null;
 function renderWorkouts(){
-  editingWoId = null;
+  editingWoId=null;
   document.getElementById('wk-title').textContent='Treinos';
   document.getElementById('wk-sub').textContent='Gerencie seus treinos';
   const wks=getWorkouts();
   const emojis=['💪','🔥','⚡','🎯'];
   document.getElementById('wk-body').innerHTML=`
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      ${wks.map((w,i)=>`<div class="card" style="padding:16px">
+      ${wks.map((w,i)=>`
+      <div class="card" style="padding:16px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
           <span style="font-size:28px">${emojis[i%emojis.length]}</span>
           <div style="flex:1"><div style="font-weight:700;font-size:17px">${esc(w.name)}</div><p style="font-size:13px;color:var(--muted)">${(w.exercises||[]).length} exercícios</p></div>
@@ -806,170 +1046,81 @@ function renderWorkouts(){
       </div>`).join('')}
     </div>
     <button class="btn btn-blue" onclick="newWorkoutModal()">+ Criar Novo Treino</button>
-    <div style="margin-top:24px">
-      <p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">Backup</p>
+    <div style="margin-top:24px"><p class="lbl" style="margin-bottom:10px">Backup</p>
       <div style="display:flex;gap:8px">
         <button class="btn btn-ghost btn-sm" style="flex:1" onclick="doExport()">📤 Exportar</button>
         <label class="btn btn-ghost btn-sm" style="flex:1;cursor:pointer">📥 Importar<input type="file" accept=".json" style="display:none" onchange="doImport(this)"></label>
       </div>
     </div>`;
 }
-
 function newWorkoutModal(){
-  openModal(`
-    <h2 style="font-family:var(--fd);font-size:26px;margin-bottom:16px">Novo Treino</h2>
+  openModal(`<h2 style="font-family:var(--fd);font-size:26px;margin-bottom:16px">Novo Treino</h2>
     <input id="nw-name" placeholder="Nome (ex: Treino C)" style="margin-bottom:14px"/>
-    <div style="display:flex;gap:10px">
-      <button class="btn btn-blue" onclick="createWorkout()">Criar</button>
-      <button class="btn btn-ghost" style="width:auto;padding:14px 20px" onclick="closeModal()">Cancelar</button>
-    </div>`);
+    <div style="display:flex;gap:10px"><button class="btn btn-blue" onclick="createWorkout()">Criar</button>
+    <button class="btn btn-ghost" style="width:auto;padding:14px 20px" onclick="closeModal()">Cancelar</button></div>`);
   setTimeout(()=>document.getElementById('nw-name')?.focus(),100);
 }
-
 function createWorkout(){
-  const name=(document.getElementById('nw-name')?.value||'').trim();
-  if(!name) return;
-  const wks=getWorkouts();
+  const name=(document.getElementById('nw-name')?.value||'').trim();if(!name)return;
   const nw={id:uid(),name,exercises:[]};
-  saveWorkouts([...wks,nw]);
-  closeModal();
-  openEditWorkout(nw.id);
+  saveWorkouts([...getWorkouts(),nw]);closeModal();openEditWorkout(nw.id);
 }
-
 function dupWorkout(id){
-  const wks=getWorkouts(), w=wks.find(x=>x.id===id);
-  if(!w) return;
-  saveWorkouts([...wks,{...w,id:uid(),name:w.name+' (cópia)',exercises:(w.exercises||[]).map(e=>({...e,id:uid()}))}]);
+  const w=getWorkouts().find(x=>x.id===id);if(!w)return;
+  saveWorkouts([...getWorkouts(),{...w,id:uid(),name:w.name+' (cópia)',exercises:(w.exercises||[]).map(e=>({...e,id:uid()}))}]);
   renderWorkouts();
 }
-
-function delWorkout(id){
-  saveWorkouts(getWorkouts().filter(w=>w.id!==id));
-  renderWorkouts();
-}
-
-const EXSUGG=['Lat Pulldown','Leg Extension','Hip Adductor','Tríceps na Corda','Bíceps Curl','Abdominal','Leg Press','Seated Leg Curl','Hip Abductor','Chest Press','Shoulder Press','Lateral Raise','Supino','Remada','Agachamento','Calf Raise','Pec Deck','Face Pull'];
-
-function openEditWorkout(id){
-  editingWoId=id;
-  renderEditWorkout();
-}
-
+function delWorkout(id){saveWorkouts(getWorkouts().filter(w=>w.id!==id));renderWorkouts();}
+const EXSUGG=['Lat Pulldown','Leg Extension','Hip Adductor','Tríceps na Corda','Bíceps Curl','Abdominal','Leg Press','Seated Leg Curl','Hip Abductor','Chest Press','Shoulder Press','Lateral Raise','Supino','Remada','Agachamento','Calf Raise','Pec Deck','Face Pull','Rosca Direta','Rosca Martelo','Elevação Frontal','Crucifixo','Pullover','Stiff','Afundo'];
+function openEditWorkout(id){editingWoId=id;renderEditWorkout();}
 function renderEditWorkout(){
-  const w=getWorkouts().find(x=>x.id===editingWoId);
-  if(!w){renderWorkouts();return;}
+  const w=getWorkouts().find(x=>x.id===editingWoId);if(!w){renderWorkouts();return;}
   document.getElementById('wk-title').textContent=w.name;
-  document.getElementById('wk-sub').textContent=`${(w.exercises||[]).length} exercícios`;
+  document.getElementById('wk-sub').textContent=(w.exercises||[]).length+' exercícios';
   document.getElementById('wk-body').innerHTML=`
-    <div style="margin-bottom:12px">
-      <span class="lbl">Nome do Treino</span>
-      <input value="${esc(w.name)}" oninput="updWoName(this.value)" style="font-size:17px;font-weight:700"/>
-    </div>
+    <div style="margin-bottom:12px"><span class="lbl">Nome do Treino</span>
+    <input value="${esc(w.name)}" oninput="updWoName(this.value)" style="font-size:17px;font-weight:700"/></div>
     <button class="btn btn-ghost" onclick="renderWorkouts()" style="margin-bottom:16px;font-size:13px;min-height:40px">← Voltar à lista</button>
     <div id="ex-list">${(w.exercises||[]).map(ex=>renderEditEx(ex,w.id)).join('')}</div>
+    <datalist id="ex-sugg">${EXSUGG.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
     <button class="btn btn-ghost" onclick="addEx('${w.id}')" style="margin-top:4px">+ Adicionar Exercício</button>`;
 }
-
 function renderEditEx(ex,wId){
-  return `<div class="card" style="padding:14px;margin-bottom:10px" id="eed-${ex.id}">
+  return`<div class="card" style="padding:14px;margin-bottom:10px" id="eed-${ex.id}">
     <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
       <input value="${esc(ex.name)}" placeholder="Nome do exercício" list="ex-sugg" oninput="updEx('${wId}','${ex.id}','name',this.value)" style="flex:1;font-weight:600"/>
       <button onclick="rmEx('${wId}','${ex.id}')" style="background:none;border:none;color:var(--red);font-size:20px;flex-shrink:0;cursor:pointer;padding:4px">✕</button>
     </div>
-    <datalist id="ex-sugg">${EXSUGG.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
     <div style="display:flex;gap:10px">
       <div style="flex:1"><span class="lbl">Séries</span><input type="number" value="${ex.sets}" min="1" oninput="updEx('${wId}','${ex.id}','sets',+this.value)"/></div>
       <div style="flex:1"><span class="lbl">Reps</span><input type="number" value="${ex.reps}" min="1" oninput="updEx('${wId}','${ex.id}','reps',+this.value)"/></div>
-    </div>
-  </div>`;
+    </div></div>`;
 }
-
-function updWoName(v){
-  const wks=getWorkouts();
-  saveWorkouts(wks.map(w=>w.id===editingWoId?{...w,name:v}:w));
-  document.getElementById('wk-title').textContent=v;
-}
-function updEx(wId,exId,field,val){
-  const wks=getWorkouts();
-  saveWorkouts(wks.map(w=>w.id===wId?{...w,exercises:(w.exercises||[]).map(e=>e.id===exId?{...e,[field]:val}:e)}:w));
-}
-function rmEx(wId,exId){
-  const wks=getWorkouts();
-  saveWorkouts(wks.map(w=>w.id===wId?{...w,exercises:(w.exercises||[]).filter(e=>e.id!==exId)}:w));
-  document.getElementById('eed-'+exId)?.remove();
-}
+function updWoName(v){saveWorkouts(getWorkouts().map(w=>w.id===editingWoId?{...w,name:v}:w));document.getElementById('wk-title').textContent=v;}
+function updEx(wId,exId,field,val){saveWorkouts(getWorkouts().map(w=>w.id===wId?{...w,exercises:(w.exercises||[]).map(e=>e.id===exId?{...e,[field]:val}:e)}:w));}
+function rmEx(wId,exId){saveWorkouts(getWorkouts().map(w=>w.id===wId?{...w,exercises:(w.exercises||[]).filter(e=>e.id!==exId)}:w));document.getElementById('eed-'+exId)?.remove();}
 function addEx(wId){
   const ne={id:uid(),name:'',sets:3,reps:10,weight:0};
-  const wks=getWorkouts();
-  saveWorkouts(wks.map(w=>w.id===wId?{...w,exercises:[...(w.exercises||[]),ne]}:w));
-  const list=document.getElementById('ex-list');
-  const addBtn=list?.nextElementSibling;
-  if(list&&addBtn){const tmp=document.createElement('div');tmp.innerHTML=renderEditEx(ne,wId);list.appendChild(tmp.firstElementChild);}
+  saveWorkouts(getWorkouts().map(w=>w.id===wId?{...w,exercises:[...(w.exercises||[]),ne]}:w));
+  document.getElementById('ex-list')?.insertAdjacentHTML('beforeend',renderEditEx(ne,wId));
 }
-
 function doExport(){
   const data={workouts:getWorkouts(),history:getHistory(),weightHistory:getWeights(),at:new Date().toISOString()};
   const a=document.createElement('a');
   a.href='data:application/json,'+encodeURIComponent(JSON.stringify(data,null,2));
   a.download='gymtracker-'+new Date().toISOString().split('T')[0]+'.json';
-  a.click();
-  toast('📤 Exportado!');
+  a.click();toast('📤 Exportado!');
 }
 function doImport(input){
-  const f=input.files[0]; if(!f) return;
+  const f=input.files[0];if(!f)return;
   const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      if(d.workouts) saveWorkouts(d.workouts);
-      if(d.history) lss(KEYS.H,d.history);
-      if(d.weightHistory) lss(KEYS.WH,d.weightHistory);
-      toast('✅ Importado!');
-      renderWorkouts();
-    }catch{toast('❌ Erro ao importar',false);}
-  };
+  r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.workouts)saveWorkouts(d.workouts);if(d.history)lss(KEYS.H,d.history);if(d.weightHistory)lss(KEYS.WH,d.weightHistory);toast('✅ Importado!');renderWorkouts();}catch{toast('❌ Erro ao importar',false);}};
   r.readAsText(f);
-}
-
-// ── TENNIS ────────────────────────────────────────────────────────────
-function renderTennis(){
-  document.getElementById('tennis-body').innerHTML=`
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div><span class="lbl">Data</span><input type="date" id="t-date" value="${new Date().toISOString().split('T')[0]}"/></div>
-      <div>
-        <span class="lbl">Duração (minutos)</span>
-        <div class="ngrp" style="margin-bottom:8px">
-          <button class="sbtn" onclick="tStep(-15)">−</button>
-          <input type="number" id="t-dur" value="60" min="1"/>
-          <button class="sbtn" onclick="tStep(15)">+</button>
-        </div>
-        <div style="display:flex;gap:8px">
-          ${[30,45,60,90,120].map(t=>`<button class="btn btn-ghost btn-sm" style="flex:1;padding:6px" onclick="document.getElementById('t-dur').value=${t}">${t}min</button>`).join('')}
-        </div>
-      </div>
-      <div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi? Com quem jogou?" rows="4" style="resize:vertical"></textarea></div>
-
-```
-  <button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Treino de Tênis</button>
-</div>`;
-```
-
-}
-function tStep(d){ const i=document.getElementById(‘t-dur’); if(i) i.value=Math.max(5,(+i.value||60)+d); }
-function saveTennis(){
-const dur=+(document.getElementById(‘t-dur’)?.value)||60;
-const notes=document.getElementById(‘t-notes’)?.value||’’;
-const date=document.getElementById(‘t-date’)?.value||new Date().toISOString().split(‘T’)[0];
-saveSession({id:uid(),type:‘tennis’,workoutName:‘Tênis 🎾’,date:new Date(date+‘T12:00:00’).toISOString(),duration:dur,notes});
-toast(‘🎾 Tênis salvo!’);
-setTimeout(()=>showPage(‘history’),700);
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────────
 initData();
 renderHome();
-fetchGifsInBackground();
 </script>
-
 </body>
 </html>
