@@ -241,8 +241,9 @@ function authGetUsers(){try{return JSON.parse(localStorage.getItem(AUTH_KEY)||'[
 function authSaveUsers(u){localStorage.setItem(AUTH_KEY,JSON.stringify(u));}
 function userKey(k){return CURRENT_USER?'u_'+CURRENT_USER+'_'+k:k;}
 function setupUserStorage(){
-  window.ls=function(k){try{return JSON.parse(localStorage.getItem(userKey(k))||'null');}catch(e){return null;}};
-  window.lss=function(k,v){try{localStorage.setItem(userKey(k),JSON.stringify(v));}catch(e){}};
+  var _ls=function(k){try{return JSON.parse(localStorage.getItem(userKey(k))||'null');}catch(e){return null;}};
+  var _lss=function(k,v){try{localStorage.setItem(userKey(k),JSON.stringify(v));}catch(e){}};
+  window.ls=_ls;window.lss=_lss;ls=_ls;lss=_lss;
 }
 function authSwitchTab(tab){
   document.getElementById('auth-login-form').style.display=tab==='login'?'flex':'none';
@@ -316,8 +317,9 @@ function authLogout(){
   if(typeof WO!=='undefined'&&WO){clearInterval(WO.timer);clearInterval(WO.restTimer);WO=null;}
   CURRENT_USER=null;
   localStorage.removeItem(SESSION_KEY);
-  window.ls=function(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}};
-  window.lss=function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+  ls=function(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}};
+  lss=function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+  window.ls=ls;window.lss=lss;
   document.getElementById('auth-screen').style.display='flex';
   document.getElementById('user-switcher').style.display='none';
   authRenderUsersList();
@@ -361,8 +363,9 @@ var DEFAULTS=[
     {id:'e11',name:'Abdominal',sets:3,reps:15,weight:0}]}
 ];
 
-function ls(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}}
-function lss(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+var ls=function(k){try{return JSON.parse(localStorage.getItem(k)||'null');}catch(e){return null;}};
+var lss=function(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+window.ls=ls;window.lss=lss;
 
 function initData(){
   if(!localStorage.getItem(userKey(KEYS.INIT))){
