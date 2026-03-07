@@ -402,6 +402,7 @@ function lastWeightsMap(){
 }
 function getTodayKey(){return new Date().toISOString().split('T')[0];}
 function getWaterToday(){var w=ls(KEYS.WATER)||{};return w[getTodayKey()]||0;}
+function addCustomWater(){var inp=document.getElementById('water-custom');var v=inp?+inp.value:0;if(v>0){addWater(v);renderWater();}}
 function addWater(ml){var w=ls(KEYS.WATER)||{};var k=getTodayKey();w[k]=(w[k]||0)+ml;lss(KEYS.WATER,w);}
 function setWaterMeta(ml){lss(KEYS.WATERMETA,ml);}
 function getWaterMeta(){return ls(KEYS.WATERMETA)||2500;}
@@ -728,17 +729,48 @@ function renderWeightChart(){
 <script>
 // PART 4: Water, Food, Tennis, Activities
 function renderWater(){
-  var ml=getWaterToday(),meta=getWaterMeta(),pct=Math.min(100,Math.round(ml/meta*100)),cups=Math.ceil(meta/250),filled=Math.round(ml/250);
-  document.getElementById('water-sub').textContent=ml+'ml de '+meta+'ml — '+pct+'%';
-  var drops=Array.from({length:cups},function(_,i){return'<div class="drop '+(i<filled?'filled':'')+'" onclick="addWater(250);renderWater()">💧</div>';}).join('');
-  var quickBtns=[150,200,250,350,500].map(function(v){return'<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:13px" onclick="addWater('+v+');renderWater()">+'+v+'ml</button>';}).join('');
-  document.getElementById('water-body').innerHTML=
-    '<div class="card" style="text-align:center;padding:24px;margin-bottom:16px"><div style="font-family:var(--fd);font-size:52px;color:var(--teal);line-height:1">'+ml+'<span style="font-size:24px">ml</span></div><div style="font-size:14px;color:var(--txt2);margin:6px 0 16px">Meta: '+meta+'ml · '+pct+'%</div><div class="prog" style="height:8px;margin-bottom:8px"><div class="prog-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--teal),#06b6d4)"></div></div>'+(pct>=100?'<p style="font-size:13px;color:var(--teal);font-weight:600;margin-top:8px">🎉 Meta atingida!</p>':'')+'</div>'
-    +'<p class="lbl" style="margin-bottom:10px">Copos de 250ml</p><div class="water-drops" style="margin-bottom:20px">'+drops+'</div>'
-    +'<p class="lbl" style="margin-bottom:10px">Adicionar</p><div style="display:flex;gap:8px;margin-bottom:16px">'+quickBtns+'</div>'
-    +'<div style="display:flex;gap:8px;margin-bottom:24px"><input type="number" id="water-custom" placeholder="Outro valor (ml)" style="flex:1"/><button class="btn btn-blue" style="width:auto;padding:10px 16px;min-height:44px" onclick="var v=+document.getElementById(\'water-custom\').value;if(v>0){addWater(v);renderWater();}">Adicionar</button></div>'
-    +'<p class="lbl" style="margin-bottom:10px">Meta diária</p><div style="display:flex;gap:8px;margin-bottom:8px">'+[1500,2000,2500,3000,3500].map(function(v){return'<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:12px;'+(meta===v?'border-color:var(--blue);color:var(--blue2)':'')+'" onclick="setWaterMeta('+v+');renderWater()">'+v+'ml</button>';}).join('')+'</div>'
-    +'<button class="btn btn-danger" style="margin-top:12px" onclick="var w=ls(KEYS.WATER)||{};w[getTodayKey()]=0;lss(KEYS.WATER,w);renderWater()">🔄 Resetar hoje</button>';
+  try {
+    var ml=getWaterToday(),meta=getWaterMeta(),pct=Math.min(100,Math.round(ml/meta*100));
+    var cups=Math.ceil(meta/250),filled=Math.round(ml/250);
+    var sub=document.getElementById('water-sub');
+    if(sub) sub.textContent=ml+'ml de '+meta+'ml — '+pct+'%';
+    var drops='';
+    for(var i=0;i<cups;i++){
+      drops+='<div class="drop '+(i<filled?'filled':'')+'" onclick="addWater(250);renderWater()">💧</div>';
+    }
+    var quickBtns='';
+    [150,200,250,350,500].forEach(function(v){
+      quickBtns+='<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:13px" onclick="addWater('+v+');renderWater()">+'+v+'ml</button>';
+    });
+    var metaBtns='';
+    [1500,2000,2500,3000,3500].forEach(function(v){
+      metaBtns+='<button class="btn btn-ghost btn-sm" style="flex:1;padding:8px 4px;font-size:12px;'+(meta===v?'border-color:var(--blue);color:var(--blue2)':'')+'" onclick="setWaterMeta('+v+');renderWater()">'+v+'ml</button>';
+    });
+    var body=document.getElementById('water-body');
+    if(!body) return;
+    body.innerHTML=
+      '<div class="card" style="text-align:center;padding:24px;margin-bottom:16px">'
+      +'<div style="font-family:var(--fd);font-size:52px;color:var(--teal);line-height:1">'+ml+'<span style="font-size:24px">ml</span></div>'
+      +'<div style="font-size:14px;color:var(--txt2);margin:6px 0 16px">Meta: '+meta+'ml &middot; '+pct+'%</div>'
+      +'<div class="prog" style="height:8px;margin-bottom:8px"><div class="prog-fill" style="width:'+pct+'%;background:linear-gradient(90deg,var(--teal),#06b6d4)"></div></div>'
+      +(pct>=100?'<p style="font-size:13px;color:var(--teal);font-weight:600;margin-top:8px">🎉 Meta atingida!</p>':'')
+      +'</div>'
+      +'<p class="lbl" style="margin-bottom:10px">Copos de 250ml</p>'
+      +'<div class="water-drops" style="margin-bottom:20px">'+drops+'</div>'
+      +'<p class="lbl" style="margin-bottom:10px">Adicionar rapidamente</p>'
+      +'<div style="display:flex;gap:8px;margin-bottom:16px">'+quickBtns+'</div>'
+      +'<div style="display:flex;gap:8px;margin-bottom:24px">'
+      +'<input type="number" id="water-custom" placeholder="Outro valor (ml)" style="flex:1"/>'
+      +'<button class="btn btn-blue" style="width:auto;padding:10px 16px;min-height:44px" onclick="addCustomWater()">Adicionar</button>'
+      +'</div>'
+      +'<p class="lbl" style="margin-bottom:10px">Meta diária</p>'
+      +'<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">'+metaBtns+'</div>'
+      +'<button class="btn btn-danger" style="margin-top:12px" onclick="var w=ls(KEYS.WATER)||{};w[getTodayKey()]=0;lss(KEYS.WATER,w);renderWater()">🔄 Resetar hoje</button>';
+  } catch(e) {
+    var body=document.getElementById('water-body');
+    if(body) body.innerHTML='<div class="empty"><div style="font-size:48px">💧</div><p style="color:var(--red)">Erro: '+e.message+'</p></div>';
+    console.error('renderWater error:', e);
+  }
 }
 
 var MEAL_NAMES={breakfast:'☀️ Café da Manhã',lunch:'🌤️ Almoço',snack:'🍎 Lanche',dinner:'🌙 Jantar'};
@@ -749,20 +781,72 @@ var FOOD_SUGGESTIONS={
   dinner:['Sopa de legumes com frango','Omelete com vegetais','Filé de peixe grelhado com salada','Frango com brócolis no vapor','Carne magra com batata doce','Wrap integral com atum']
 };
 function renderFood(){
-  var today=getFoodToday(),meals=['breakfast','lunch','snack','dinner'];
-  var mealCards=meals.map(function(meal){
-    var items=today[meal]||[];
-    var itemsHtml=items.length?items.map(function(item,i){return'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span style="flex:1;font-size:14px">'+esc(item)+'</span><button onclick="removeFoodItem(\''+meal+'\','+i+')" style="background:none;border:none;color:var(--muted);font-size:16px;padding:2px;cursor:pointer">✕</button></div>';}).join(''):'<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhum item registrado</p>';
-    var suggestions=FOOD_SUGGESTIONS[meal].slice(0,3).map(function(s){return'<button onclick="addFoodItem(\''+meal+'\',\''+s.replace(/'/g,"\\'")+'\')" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:7px 10px;font-size:12px;color:var(--txt2);cursor:pointer;text-align:left;font-family:var(--fb)">'+s+'</button>';}).join('');
-    return'<div class="meal-card"><div class="meal-hdr" onclick="toggleMeal(\''+meal+'\')"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">'+MEAL_NAMES[meal].split(' ')[0]+'</span><div><div style="font-weight:700;font-size:15px">'+MEAL_NAMES[meal].slice(2)+'</div><div style="font-size:12px;color:var(--muted)">'+items.length+' item'+(items.length!==1?'s':'')+'</div></div></div><span style="color:var(--muted)" id="arrow-'+meal+'">▼</span></div><div class="meal-body" id="meal-'+meal+'">'+itemsHtml+'<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:10px"><input id="food-input-'+meal+'" placeholder="Adicionar alimento..." style="flex:1;font-size:14px;padding:8px 10px"/><button class="btn btn-blue" style="width:auto;padding:8px 14px;min-height:38px;font-size:13px" onclick="addFoodFromInput(\''+meal+'\')">+ Add</button></div><p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Sugestões</p><div style="display:flex;flex-direction:column;gap:6px">'+suggestions+'</div><button onclick="showAllSuggestions(\''+meal+'\')" style="background:none;border:none;color:var(--blue2);font-size:13px;cursor:pointer;padding:8px 0;font-family:var(--fb)">Ver mais →</button></div></div>';
-  }).join('');
-  document.getElementById('food-body').innerHTML='<p style="font-size:13px;color:var(--txt2);margin-bottom:16px">📅 '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+'</p>'+mealCards;
+  try {
+    var today=getFoodToday();
+    var meals=['breakfast','lunch','snack','dinner'];
+    var html='<p style="font-size:13px;color:var(--txt2);margin-bottom:16px">📅 '+new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})+'</p>';
+    meals.forEach(function(meal){
+      var items=today[meal]||[];
+      var icon=MEAL_NAMES[meal].split(' ')[0];
+      var mname=MEAL_NAMES[meal].slice(MEAL_NAMES[meal].indexOf(' ')+1);
+      var itemsHtml='';
+      if(items.length){
+        for(var i=0;i<items.length;i++){
+          var safeItem=esc(items[i]);
+          itemsHtml+='<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">'
+            +'<span style="flex:1;font-size:14px">'+safeItem+'</span>'
+            +'<button data-meal="'+meal+'" data-idx="'+i+'" onclick="removeFoodItem(this.dataset.meal,+this.dataset.idx)" style="background:none;border:none;color:var(--muted);font-size:16px;padding:2px;cursor:pointer">✕</button>'
+            +'</div>';
+        }
+      } else {
+        itemsHtml='<p style="font-size:13px;color:var(--muted);padding:8px 0">Nenhum item registrado</p>';
+      }
+      var suggs='';
+      var slist=FOOD_SUGGESTIONS[meal]||[];
+      for(var j=0;j<Math.min(3,slist.length);j++){
+        suggs+='<button data-meal="'+meal+'" data-item="'+esc(slist[j])+'" onclick="addFoodItem(this.dataset.meal,this.dataset.item)" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:7px 10px;font-size:12px;color:var(--txt2);cursor:pointer;text-align:left;font-family:var(--fb)">'+esc(slist[j])+'</button>';
+      }
+      html+='<div class="meal-card">'
+        +'<div class="meal-hdr" data-meal="'+meal+'" onclick="toggleMeal(this.dataset.meal)">'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+        +'<span style="font-size:18px">'+icon+'</span>'
+        +'<div><div style="font-weight:700;font-size:15px">'+mname+'</div>'
+        +'<div style="font-size:12px;color:var(--muted)">'+items.length+' item'+(items.length!==1?'s':'')+'</div>'
+        +'</div></div>'
+        +'<span style="color:var(--muted)" id="arrow-'+meal+'">▼</span>'
+        +'</div>'
+        +'<div class="meal-body" id="meal-'+meal+'">'
+        +itemsHtml
+        +'<div style="display:flex;gap:8px;margin-top:10px;margin-bottom:10px">'
+        +'<input id="food-input-'+meal+'" placeholder="Adicionar alimento..." style="flex:1;font-size:14px;padding:8px 10px"/>'
+        +'<button data-meal="'+meal+'" class="btn btn-blue" style="width:auto;padding:8px 14px;min-height:38px;font-size:13px" onclick="addFoodFromInput(this.dataset.meal)">+ Add</button>'
+        +'</div>'
+        +'<p style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Sugestões</p>'
+        +'<div style="display:flex;flex-direction:column;gap:6px">'+suggs+'</div>'
+        +'<button data-meal="'+meal+'" onclick="showAllSuggestions(this.dataset.meal)" style="background:none;border:none;color:var(--blue2);font-size:13px;cursor:pointer;padding:8px 0;font-family:var(--fb)">Ver mais →</button>'
+        +'</div></div>';
+    });
+    var body=document.getElementById('food-body');
+    if(body) body.innerHTML=html;
+  } catch(e) {
+    var body=document.getElementById('food-body');
+    if(body) body.innerHTML='<div class="empty"><div style="font-size:48px">🍽️</div><p style="color:var(--red)">Erro: '+e.message+'</p></div>';
+    console.error('renderFood error:', e);
+  }
 }
+
 function toggleMeal(meal){var body=document.getElementById('meal-'+meal),arrow=document.getElementById('arrow-'+meal);if(!body)return;var open=body.classList.contains('open');body.classList.toggle('open');if(arrow)arrow.textContent=open?'▼':'▲';}
 function addFoodFromInput(meal){var inp=document.getElementById('food-input-'+meal);if(!inp||!inp.value.trim())return;addFoodItem(meal,inp.value.trim());inp.value='';renderFood();setTimeout(function(){toggleMeal(meal);},50);}
 function addFoodItem(meal,item){var today=getFoodToday();today[meal]=(today[meal]||[]).concat([item]);saveFoodToday(today);renderFood();}
 function removeFoodItem(meal,idx){var today=getFoodToday();today[meal]=(today[meal]||[]).filter(function(_,i){return i!==idx;});saveFoodToday(today);renderFood();}
-function showAllSuggestions(meal){openModal('<h3 style="font-family:var(--fd);font-size:22px;margin-bottom:16px">Sugestões — '+MEAL_NAMES[meal].slice(2)+'</h3><div style="display:flex;flex-direction:column;gap:8px">'+FOOD_SUGGESTIONS[meal].map(function(s){return'<button onclick="addFoodItem(\''+meal+'\',\''+s.replace(/'/g,"\\'")+'\');closeModal()" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:14px;color:var(--txt);cursor:pointer;text-align:left;font-family:var(--fb)">'+s+'</button>';}).join('')+'</div>');}
+function showAllSuggestions(meal){
+  var mname=MEAL_NAMES[meal].slice(MEAL_NAMES[meal].indexOf(' ')+1);
+  var btns='';
+  (FOOD_SUGGESTIONS[meal]||[]).forEach(function(s){
+    btns+='<button data-meal="'+meal+'" data-item="'+esc(s)+'" onclick="addFoodItem(this.dataset.meal,this.dataset.item);closeModal()" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:14px;color:var(--txt);cursor:pointer;text-align:left;font-family:var(--fb)">'+esc(s)+'</button>';
+  });
+  openModal('<h3 style="font-family:var(--fd);font-size:22px;margin-bottom:16px">Sugestões — '+mname+'</h3><div style="display:flex;flex-direction:column;gap:8px">'+btns+'</div>');
+}
 
 function renderTennis(){
   document.getElementById('tennis-body').innerHTML='<div style="display:flex;flex-direction:column;gap:16px"><div><span class="lbl">Data</span><input type="date" id="t-date" value="'+new Date().toISOString().split('T')[0]+'"/></div><div><span class="lbl">Duração (minutos)</span><div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="tStep(-15)">-</button><input type="number" id="t-dur" value="60" min="1"/><button class="sbtn" onclick="tStep(15)">+</button></div><div style="display:flex;gap:8px">'+[30,45,60,90,120].map(function(t){return'<button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById(\'t-dur\').value='+t+'">'+t+'min</button>';}).join('')+'</div></div><div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi?" rows="3" style="resize:vertical"></textarea></div><div><span class="lbl">Como você se sentiu?</span><div style="display:flex;gap:8px"><button class="feeling-btn" id="tf-easy" onclick="selectTFeeling(\'easy\')"><span class="feel-ico">😊</span>Fácil</button><button class="feeling-btn" id="tf-medium" onclick="selectTFeeling(\'medium\')"><span class="feel-ico">😤</span>Moderado</button><button class="feeling-btn" id="tf-hard" onclick="selectTFeeling(\'hard\')"><span class="feel-ico">🥵</span>Difícil</button></div></div><button class="btn btn-green" onclick="saveTennis()" style="font-size:17px;min-height:56px">💾 Salvar Tênis</button></div>';
