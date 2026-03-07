@@ -1487,7 +1487,7 @@ initData();
 renderHome();
 
 // Load exercise images in background (non-blocking)
-fetch('exercise imgs.json')
+fetch('exercise_imgs.json')
   .then(r => r.json())
   .then(data => {
     Object.assign(EXERCISE_IMGS, data);
