@@ -92,20 +92,23 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 .meal-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
 .meal-body{padding:0 16px 14px;display:none}
 .meal-body.open{display:block}
+
+#debug-panel{position:fixed;bottom:0;left:0;right:0;background:rgba(0,0,0,0.95);color:#0f0;font-size:10px;font-family:monospace;padding:6px;z-index:999999;max-height:120px;overflow-y:auto;border-top:1px solid #0f0;display:none}
 /* AUTH */
-#auth-screen{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
-.auth-card{width:100%;max-width:360px;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:32px 24px;display:flex;flex-direction:column;gap:16px}
+#auth-screen{position:fixed;inset:0;background:var(–bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;overflow-y:auto}
+.auth-card{width:100%;max-width:360px;background:var(–card);border:1px solid var(–border);border-radius:24px;padding:32px 24px;display:flex;flex-direction:column;gap:16px}
 .auth-logo{text-align:center}
-.auth-logo .logo-title{font-family:var(--fd);font-size:52px;letter-spacing:0.04em;color:var(--txt);line-height:1}
-.auth-logo p{font-size:13px;color:var(--txt2);margin-top:6px}
-.auth-tabs{display:flex;background:var(--bg2);border-radius:12px;padding:4px;gap:4px}
-.auth-tab{flex:1;padding:9px;border:none;border-radius:9px;font-family:var(--fb);font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:var(--txt2)}
-.auth-tab.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(77,148,255,0.4)}
-.auth-error{background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--red);text-align:center;display:none}
+.auth-logo .logo-title{font-family:var(–fd);font-size:52px;letter-spacing:0.04em;color:var(–txt);line-height:1}
+.auth-logo p{font-size:13px;color:var(–txt2);margin-top:6px}
+.auth-tabs{display:flex;background:var(–bg2);border-radius:12px;padding:4px;gap:4px}
+.auth-tab{flex:1;padding:9px;border:none;border-radius:9px;font-family:var(–fb);font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:var(–txt2)}
+.auth-tab.active{background:var(–blue);color:#fff;box-shadow:0 2px 8px rgba(77,148,255,0.4)}
+.auth-error{background:rgba(248,81,73,0.1);border:1px solid rgba(248,81,73,0.3);border-radius:10px;padding:10px 14px;font-size:13px;color:var(–red);text-align:center;display:none}
 .auth-error.show{display:block}
-.user-switcher{position:fixed;top:calc(8px + var(--st));right:12px;z-index:9998}
-.user-badge{background:var(--card);border:1px solid var(--border);border-radius:99px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--txt2);cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.user-switcher{position:fixed;top:calc(8px + var(–st));right:12px;z-index:9998}
+.user-badge{background:var(–card);border:1px solid var(–border);border-radius:99px;padding:7px 14px;font-size:13px;font-weight:700;color:var(–txt2);cursor:pointer;display:flex;align-items:center;gap:7px;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
 </style>
+
 </head>
 <body>
 
@@ -227,6 +230,19 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 <div id="toasts"></div>
 
 <script>
+
+var _dbg=[];
+function dbg(msg){
+  _dbg.push(new Date().toISOString().slice(11,19)+' '+msg);
+  var el=document.getElementById('debug-panel');
+  if(el) el.innerHTML=_dbg.slice(-20).join('<br>');
+  console.log('[DBG]',msg);
+}
+window.onerror=function(msg,src,line,col,err){
+  dbg('ERROR: '+msg+' ('+src+':'+line+')');
+  return false;
+};
+
 // ===== AUTH SYSTEM =====
 var AUTH_KEY='gt_auth_users';
 var SESSION_KEY='gt_session';
@@ -279,6 +295,7 @@ function authRegister(){
   authStartSession(user);
 }
 function authStartSession(username){
+  dbg("authStartSession: "+username);
   CURRENT_USER=username;
   localStorage.setItem(SESSION_KEY,username);
   setupUserStorage();
@@ -431,6 +448,7 @@ function closeModal(){document.getElementById('modal').style.display='none';}
 
 var NAV_PAGES=['home','history','stats','workouts','water','food','suggest','profile'];
 function showPage(name,data){
+  dbg("showPage: "+name);
   document.querySelectorAll('.pg').forEach(function(p){p.classList.remove('show');});
   document.querySelectorAll('.ntab').forEach(function(b){b.classList.remove('on');});
   document.getElementById('nav').style.display='flex';
@@ -729,6 +747,7 @@ function renderWeightChart(){
 <script>
 // PART 4: Water, Food, Tennis, Activities
 function renderWater(){
+  dbg("renderWater called");
   try {
     var ml=getWaterToday(),meta=getWaterMeta(),pct=Math.min(100,Math.round(ml/meta*100));
     var cups=Math.ceil(meta/250),filled=Math.round(ml/250);
@@ -781,6 +800,7 @@ var FOOD_SUGGESTIONS={
   dinner:['Sopa de legumes com frango','Omelete com vegetais','Filé de peixe grelhado com salada','Frango com brócolis no vapor','Carne magra com batata doce','Wrap integral com atum']
 };
 function renderFood(){
+  dbg("renderFood called");
   try {
     var today=getFoodToday();
     var meals=['breakfast','lunch','snack','dinner'];
@@ -1007,5 +1027,7 @@ fetch('exercise_imgs.json')
   .catch(function(e){console.log('imgs:',e);});
 </script>
 
+<div id="debug-panel"></div>
+<button onclick="document.getElementById('debug-panel').style.display=document.getElementById('debug-panel').style.display==='none'?'block':'none'" style="position:fixed;bottom:0;right:0;z-index:9999999;background:#0f0;color:#000;border:none;padding:4px 8px;font-size:10px;font-family:monospace">DBG</button>
 </body>
 </html>
