@@ -191,10 +191,11 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 
 <script>
 
-// ── EXERCISE IMAGE MAP ─────────────────────────────────────────────────
+
+// -- EXERCISE IMAGE MAP -------------------------------------------------
 var EXERCISE_IMGS = {};
 
-// ── DATA ───────────────────────────────────────────────────────────────
+// -- DATA ---------------------------------------------------------------
 var KEYS = {W:'gt_w2',H:'gt_h2',WH:'gt_wh2',INIT:'gt_init3',WATER:'gt_water',WATERMETA:'gt_watermeta',FOOD:'gt_food'};
 
 var DEFAULTS = [
@@ -259,7 +260,7 @@ function getWaterMeta(){return ls(KEYS.WATERMETA)||2500;}
 function getFoodToday(){var f=ls(KEYS.FOOD)||{};return f[getTodayKey()]||{breakfast:[],lunch:[],snack:[],dinner:[]};}
 function saveFoodToday(data){var f=ls(KEYS.FOOD)||{};f[getTodayKey()]=data;lss(KEYS.FOOD,f);}
 
-// ── UTILS ──────────────────────────────────────────────────────────────
+// -- UTILS --------------------------------------------------------------
 function uid(){return Math.random().toString(36).slice(2,9)+Date.now().toString(36);}
 function vib(p){if(navigator.vibrate)navigator.vibrate(p||[80]);}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -280,7 +281,7 @@ function toast(msg,ok){
 function openModal(html){document.getElementById('modal-body').innerHTML=html;document.getElementById('modal').style.display='flex';}
 function closeModal(){document.getElementById('modal').style.display='none';}
 
-// ── NAVIGATION ─────────────────────────────────────────────────────────
+// -- NAVIGATION ---------------------------------------------------------
 var NAV_PAGES=['home','history','stats','workouts','water','food','suggest','profile'];
 function showPage(name,data){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('show'));
@@ -309,9 +310,9 @@ function showPage(name,data){
   else if(name==='profile')renderProfile();
 }
 
-// ══════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------
 // HOME — com gerenciamento inline de treinos
-// ══════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------
 
 // State: are we in edit mode on home?
 var homeEditMode = false;
@@ -457,7 +458,7 @@ function homeEditExercises(wId) {
   renderExerciseEditorModal(wId);
 }
 
-// ── EXERCISE EDITOR MODAL (used from both home and workout screen) ─────
+// -- EXERCISE EDITOR MODAL (used from both home and workout screen) -----
 var EXSUGG = [];
 
 function renderExerciseEditorModal(wId) {
@@ -530,9 +531,9 @@ function modalAddEx(wId) {
   }
 }
 
-// ══════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------
 // WORKOUT STATE
-// ══════════════════════════════════════════════════════════════════════
+// ----------------------------------------------------------------------
 var WO = null;
 
 function woBegin(){
@@ -638,7 +639,7 @@ function renderWoBody(){
   woCheckDone();
 }
 
-// ── EXERCISE THUMBNAIL ─────────────────────────────────────────────────
+// -- EXERCISE THUMBNAIL -------------------------------------------------
 function exThumb(name, done) {
   var url = EXERCISE_IMGS[name];
   if (!url) {
@@ -673,13 +674,13 @@ function renderExCard(ex){
     :'<div style="padding:0 16px 14px;display:flex;flex-direction:column;gap:12px">'
       +'<div style="display:flex;gap:12px">'
       +'<div style="flex:1"><span class="lbl">Carga (kg)</span>'
-      +'<div class="ngrp"><button class="sbtn" onclick="woStep(\''+ex.id+'\',\'weight\',-2.5)">−</button>'
+      +'<div class="ngrp"><button class="sbtn" onclick="woStep(\''+ex.id+'\',\'weight\',-2.5)">-</button>'
       +'<input type="number" value="'+d.weight+'" min="0" step="0.5" oninput="woSet(\''+ex.id+'\',\'weight\',+this.value)" id="inp-w-'+ex.id+'"/>'
       +'<button class="sbtn" onclick="woStep(\''+ex.id+'\',\'weight\',2.5)">+</button></div>'
       +(lw>0?'<p style="font-size:11px;color:var(--muted);margin-top:3px">Última: '+lw+'kg</p>':'')
       +'</div>'
       +'<div style="flex:1"><span class="lbl">Reps</span>'
-      +'<div class="ngrp"><button class="sbtn" onclick="woStep(\''+ex.id+'\',\'reps\',-1)">−</button>'
+      +'<div class="ngrp"><button class="sbtn" onclick="woStep(\''+ex.id+'\',\'reps\',-1)">-</button>'
       +'<input type="number" value="'+d.reps+'" min="1" oninput="woSet(\''+ex.id+'\',\'reps\',+this.value)" id="inp-r-'+ex.id+'"/>'
       +'<button class="sbtn" onclick="woStep(\''+ex.id+'\',\'reps\',1)">+</button></div></div>'
       +'</div>'
@@ -754,7 +755,7 @@ function woRenderRest(){
     +'<span style="font-size:11px;color:var(--muted)">seg</span>'
     +'</div></div>'
     +'<div style="display:flex;gap:8px">'
-    +'<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(-15)">−15s</button>'
+    +'<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(-15)">-15s</button>'
     +'<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(15)">+15s</button>'
     +'<button class="btn btn-ghost btn-sm" style="width:auto" onclick="woRestAdd(30)">+30s</button>'
     +'</div>'
@@ -825,7 +826,10 @@ function woFinish(){
   setTimeout(()=>showPage('history'),600);
 }
 
-// ── MUSIC PLAYER ───────────────────────────────────────────────────────
+// -- MUSIC PLAYER -------------------------------------------------------
+</script>
+
+<script>
 function renderMusicPlayer() {
   var saved = localStorage.getItem('gt_music_url') || '';
   var el = document.getElementById('music-player');
@@ -871,7 +875,7 @@ function setMusicUrl(){
 }
 function clearMusicUrl(){localStorage.removeItem('gt_music_url');renderMusicPlayer();}
 
-// ── HISTORY ────────────────────────────────────────────────────────────
+// -- HISTORY ------------------------------------------------------------
 var FEELING_LABEL={easy:'😊 Fácil',medium:'😤 Moderado',hard:'🥵 Difícil'};
 function renderHistory(){
   var hist=getHistory();
@@ -890,7 +894,7 @@ function renderHistory(){
     +'</div></div>').join('');
 }
 
-// ── DETAIL ─────────────────────────────────────────────────────────────
+// -- DETAIL -------------------------------------------------------------
 function renderDetail(id){
   var s=getHistory().find(x=>x.id===id);
   if(!s){showPage('history');return;}
@@ -912,7 +916,7 @@ function renderDetail(id){
     +'<button class="btn btn-ghost" onclick="showPage(\'history\')" style="margin-top:16px">← Voltar ao Histórico</button>';
 }
 
-// ── STATS ──────────────────────────────────────────────────────────────
+// -- STATS --------------------------------------------------------------
 function renderStats(){
   var hist=getHistory(),wk=weekStats(),wh=getWeights(),now=new Date();
   var mo=hist.filter(s=>{var d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
@@ -1000,7 +1004,7 @@ function renderWeightChart(){
     +'</div>';
 }
 
-// ── WATER ──────────────────────────────────────────────────────────────
+// -- WATER --------------------------------------------------------------
 function renderWater(){
   var ml=getWaterToday(),meta=getWaterMeta();
   var pct=Math.min(100,Math.round(ml/meta*100));
@@ -1031,7 +1035,7 @@ function renderWater(){
     +'<button class="btn btn-danger" style="margin-top:12px" onclick="var w=ls(KEYS.WATER)||{};w[getTodayKey()]=0;lss(KEYS.WATER,w);renderWater()">🔄 Resetar hoje</button>';
 }
 
-// ── FOOD ───────────────────────────────────────────────────────────────
+// -- FOOD ---------------------------------------------------------------
 var MEAL_NAMES={breakfast:'☀️ Café da Manhã',lunch:'🌤️ Almoço',snack:'🍎 Lanche',dinner:'🌙 Jantar'};
 var FOOD_SUGGESTIONS={
   breakfast:['Ovos mexidos com torrada integral','Iogurte grego com granola e frutas','Tapioca com queijo e presunto','Aveia com banana e mel','Vitamina de frutas com whey','Pão integral com pasta de amendoim'],
@@ -1107,13 +1111,13 @@ function showAllSuggestions(meal){
     +'</div>');
 }
 
-// ── TENNIS ─────────────────────────────────────────────────────────────
+// -- TENNIS -------------------------------------------------------------
 function renderTennis(){
   document.getElementById('tennis-body').innerHTML=
     '<div style="display:flex;flex-direction:column;gap:16px">'
     +'<div><span class="lbl">Data</span><input type="date" id="t-date" value="'+new Date().toISOString().split('T')[0]+'"/></div>'
     +'<div><span class="lbl">Duração (minutos)</span>'
-    +'<div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="tStep(-15)">−</button><input type="number" id="t-dur" value="60" min="1"/><button class="sbtn" onclick="tStep(15)">+</button></div>'
+    +'<div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="tStep(-15)">-</button><input type="number" id="t-dur" value="60" min="1"/><button class="sbtn" onclick="tStep(15)">+</button></div>'
     +'<div style="display:flex;gap:8px">'+[30,45,60,90,120].map(t=>'<button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById(\'t-dur\').value='+t+'">'+t+'min</button>').join('')+'</div></div>'
     +'<div><span class="lbl">Observações</span><textarea id="t-notes" placeholder="Como foi?" rows="3" style="resize:vertical"></textarea></div>'
 
@@ -1140,7 +1144,7 @@ saveSession({id:uid(),type:‘tennis’,workoutName:‘Tênis 🎾’,date:new D
 toast(‘🎾 Tênis salvo!’);setTimeout(()=>showPage(‘history’),700);
 }
 
-// ── ACTIVITIES ─────────────────────────────────────────────────────────
+// – ACTIVITIES ———————————————————
 var ACTIVITIES=[
 {id:‘run’,name:‘Corrida’,ico:‘🏃’},{id:‘bike’,name:‘Ciclismo’,ico:‘🚴’},{id:‘swim’,name:‘Natação’,ico:‘🏊’},{id:‘yoga’,name:‘Yoga’,ico:‘🧘’},
 {id:‘walk’,name:‘Caminhada’,ico:‘🚶’},{id:‘dance’,name:‘Dança’,ico:‘💃’},{id:‘jump’,name:‘Pular Corda’,ico:‘⚡’},{id:‘hiit’,name:‘HIIT’,ico:‘🔥’},
@@ -1159,7 +1163,7 @@ document.getElementById(‘activity-body’).innerHTML=
 +’<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">’+grid+’</div></div>’
 +’<div><span class="lbl">Data</span><input type="date" id="act-date" value="'+new Date().toISOString().split('T')[0]+'"/></div>’
 +’<div><span class="lbl">Duração (minutos)</span>’
-+’<div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="actStep(-5)">−</button><input type="number" id="act-dur" value="30" min="1"/><button class="sbtn" onclick="actStep(5)">+</button></div>’
++’<div class="ngrp" style="margin-bottom:8px"><button class="sbtn" onclick="actStep(-5)">-</button><input type="number" id="act-dur" value="30" min="1"/><button class="sbtn" onclick="actStep(5)">+</button></div>’
 +’<div style="display:flex;gap:8px">’+[15,30,45,60,90].map(t=>’<button class="btn btn-ghost btn-sm" style="flex:1" onclick="document.getElementById(\'act-dur\').value='+t+'">’+t+‘min</button>’).join(’’)+’</div></div>’
 +’<div><span class="lbl">Observações</span><textarea id="act-notes" placeholder="Como foi?" rows="2" style="resize:vertical"></textarea></div>’
 +’<div><span class="lbl">Como você se sentiu?</span>’
@@ -1190,7 +1194,7 @@ saveSession({id:uid(),type:‘activity’,workoutName:act.ico+’ ’+act.name,d
 toast(‘🏃 Atividade salva!’);setTimeout(()=>showPage(‘history’),700);
 }
 
-// ── WORKOUTS MANAGEMENT PAGE ───────────────────────────────────────────
+// – WORKOUTS MANAGEMENT PAGE —————————————––
 var editingWoId=null;
 function renderWorkouts(){
 editingWoId=null;
@@ -1235,7 +1239,7 @@ r.onload=e=>{try{var d=JSON.parse(e.target.result);if(d.workouts)saveWorkouts(d.
 r.readAsText(f);
 }
 
-// ── PROFILE ────────────────────────────────────────────────────────────
+// – PROFILE ————————————————————
 var PROFILE_KEY=‘gt_profile_v1’;
 var WEIGHT_LOG_KEY=‘gt_weightlog_v1’;
 function getProfile(){return ls(PROFILE_KEY)||{name:’’,photo:’’,weight:’’,height:’’,goal:‘hypertrophy’,birthdate:’’};}
@@ -1274,8 +1278,8 @@ document.getElementById(‘profile-body’).innerHTML=
 +’</div></div>’
 +(imc?’<div style="background:'+imcColor(imc)+';border-radius:var(--r);padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:12px;color:rgba(255,255,255,0.8)">IMC</div><div style="font-family:var(--fd);font-size:28px;color:#fff">’+imc+’</div><div style="font-size:11px;color:rgba(255,255,255,0.9)">’+imcLabel(imc)+’</div></div><span style="font-size:40px">’+imcEmoji(imc)+’</span></div>’:’’)
 +’<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">’
-+’<div><span class="lbl">Peso atual (kg)</span><div class="ngrp"><button class="sbtn" onclick="profileStep(\'weight\',-0.5)">−</button><input type="number" id="pf-weight" value="'+esc(p.weight)+'" step="0.5" placeholder="70" oninput="saveProfileField(\'weight\',this.value)" style="text-align:center"/><button class="sbtn" onclick="profileStep(\'weight\',0.5)">+</button></div></div>’
-+’<div><span class="lbl">Altura (cm)</span><div class="ngrp"><button class="sbtn" onclick="profileStep(\'height\',-1)">−</button><input type="number" id="pf-height" value="'+esc(p.height)+'" placeholder="170" oninput="saveProfileField(\'height\',this.value)" style="text-align:center"/><button class="sbtn" onclick="profileStep(\'height\',1)">+</button></div></div>’
++’<div><span class="lbl">Peso atual (kg)</span><div class="ngrp"><button class="sbtn" onclick="profileStep(\'weight\',-0.5)">-</button><input type="number" id="pf-weight" value="'+esc(p.weight)+'" step="0.5" placeholder="70" oninput="saveProfileField(\'weight\',this.value)" style="text-align:center"/><button class="sbtn" onclick="profileStep(\'weight\',0.5)">+</button></div></div>’
++’<div><span class="lbl">Altura (cm)</span><div class="ngrp"><button class="sbtn" onclick="profileStep(\'height\',-1)">-</button><input type="number" id="pf-height" value="'+esc(p.height)+'" placeholder="170" oninput="saveProfileField(\'height\',this.value)" style="text-align:center"/><button class="sbtn" onclick="profileStep(\'height\',1)">+</button></div></div>’
 +’</div>’
 +’<div style="margin-bottom:16px"><span class="lbl">Data de Nascimento</span><input type="date" id="pf-bday" value="'+esc(p.birthdate)+'" oninput="saveProfileField(\'birthdate\',this.value)"/></div>’
 +’<div style="margin-bottom:16px"><span class="lbl">Objetivo</span>’
@@ -1308,7 +1312,7 @@ function saveProfileField(field,val){var p=getProfile();p[field]=val;saveProfile
 function profileStep(field,delta){var p=getProfile();var v=parseFloat(p[field]||0)+delta;if(v<0)v=0;p[field]=v;saveProfile(p);var inp=document.getElementById(‘pf-’+field);if(inp)inp.value=v;if(field===‘weight’||field===‘height’)renderProfile();}
 function logWeightNow(){var inp=document.getElementById(‘new-weight’);var v=parseFloat(inp&&inp.value);if(!v||v<=0)return;addWeightLog(v);saveProfileField(‘weight’,v);inp.value=’’;toast(‘⚖️ Peso registrado!’);renderProfile();}
 
-// ── SUGGEST ────────────────────────────────────────────────────────────
+// – SUGGEST ————————————————————
 var SUGGEST_FILTER=‘all’;
 var WORKOUT_LIBRARY=[
 {id:‘sl1’,category:‘hypertrophy’,level:‘beginner’,name:‘Iniciante Full Body A’,days:‘3x/semana’,goal:‘💪 Hipertrofia’,exercises:[{name:‘Agachamento’,sets:3,reps:10},{name:‘Supino’,sets:3,reps:10},{name:‘Remada’,sets:3,reps:10},{name:‘Shoulder Press’,sets:3,reps:10},{name:‘Bíceps Curl’,sets:3,reps:12},{name:‘Tríceps na Corda’,sets:3,reps:12},{name:‘Abdominal’,sets:3,reps:15}]},
@@ -1382,7 +1386,7 @@ saveWorkouts(getWorkouts().concat([newW]));
 toast(‘✅ “’+w.name+’” adicionado!’);renderSuggest();
 }
 
-// ── THEME ──────────────────────────────────────────────────────────────
+// – THEME –––––––––––––––––––––––––––––––
 var THEMES=[
 {id:‘dark’,name:‘Dark’,emoji:‘🌑’,bg:’#0d1117’,bg2:’#161b22’,card:’#1c2128’,border:’#30363d’,blue:’#4d94ff’,blue2:’#58a6ff’,bluedim:‘rgba(77,148,255,0.12)’,txt:’#e6edf3’,txt2:’#8b949e’,muted:’#484f58’},
 {id:‘amoled’,name:‘AMOLED’,emoji:‘⬛’,bg:’#000000’,bg2:’#0a0a0a’,card:’#111111’,border:’#222222’,blue:’#4d94ff’,blue2:’#58a6ff’,bluedim:‘rgba(77,148,255,0.1)’,txt:’#ffffff’,txt2:’#888888’,muted:’#444444’},
@@ -1449,7 +1453,7 @@ localStorage.removeItem(‘gt_theme’);localStorage.removeItem(‘gt_font’);l
 toast(‘↩ Tema restaurado!’);
 }
 
-// ── BOOT ───────────────────────────────────────────────────────────────
+// – BOOT —————————————————————
 loadSavedTheme();
 initData();
 renderHome();
