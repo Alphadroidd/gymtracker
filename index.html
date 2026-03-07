@@ -192,6 +192,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--blue)}
 <script>
 
 
+
 // -- EXERCISE IMAGE MAP -------------------------------------------------
 var EXERCISE_IMGS = {};
 
@@ -498,6 +499,9 @@ function renderExerciseEditorModal(wId) {
   );
 }
 
+</script>
+
+<script>
 function modalRenameWorkout(wId, val) {
   saveWorkouts(getWorkouts().map(function(w){return w.id===wId ? Object.assign({},w,{name:val}) : w;}));
 }
@@ -803,6 +807,9 @@ function woAskFinish(){
     +'</div>');
 }
 
+</script>
+
+<script>
 function selectFeeling(f){
   if(WO)WO.feeling=f;
   document.querySelectorAll('.feeling-btn').forEach(b=>b.classList.remove('selected'));
@@ -827,9 +834,8 @@ function woFinish(){
 }
 
 // -- MUSIC PLAYER -------------------------------------------------------
-</script>
 
-<script>
+
 function renderMusicPlayer() {
   var saved = localStorage.getItem('gt_music_url') || '';
   var el = document.getElementById('music-player');
@@ -1093,6 +1099,9 @@ function addFoodFromInput(meal){
   inp.value='';renderFood();
   setTimeout(()=>toggleMeal(meal),50);
 }
+</script>
+
+<script>
 function addFoodItem(meal,item){
   var today=getFoodToday();
   today[meal]=(today[meal]||[]).concat([item]);
@@ -1466,7 +1475,7 @@ Object.assign(EXERCISE_IMGS, data);
 EXSUGG = Object.keys(EXERCISE_IMGS).sort();
 })
 .catch(e => console.log(‘imgs:’, e));
-</script>
 
+</script>
 </body>
 </html>
