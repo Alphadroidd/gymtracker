@@ -727,7 +727,7 @@ function renderStats(){
   document.getElementById('stats-body').innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">'
     +[['📅','Semana',wk.n,'treinos','var(--blue2)'],['⏱️','Semana',fmtMin(wk.mins),'','var(--orange)'],['📆','Este mês',mo.length,'treinos','var(--green)'],['🏆','Total',Math.round(totalH/60*10)/10,'h','var(--purple)']].map(function(arr){return'<div class="card" style="text-align:center;padding:16px"><div style="font-size:22px;margin-bottom:4px">'+arr[0]+'</div><div style="font-family:var(--fd);font-size:26px;color:'+arr[4]+'">'+arr[2]+(arr[3]?'<span style="font-size:16px"> '+arr[3]+'</span>':'')+'</div><div style="font-size:11px;color:var(--muted);margin-top:4px">'+arr[1]+'</div></div>';}).join('')+'</div>'
-    +'<p class="lbl" style="margin-bottom:8px">Calendário — '+monthNames[month]+' '+year+'</p>'
+    +'<p class="lbl" style="margin-bottom:8px">Calendário - '+monthNames[month]+' '+year+'</p>'
     +'<div class="card" style="margin-bottom:8px"><div class="cal-grid">'+dayHeaders+'</div><div class="cal-grid">'+calCells+'</div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--txt2)"><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(77,148,255,0.3);margin-right:4px"></span>Musculação</span><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(63,185,80,0.3);margin-right:4px"></span>Tênis</span><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:rgba(163,113,247,0.3);margin-right:4px"></span>Atividade</span></div></div>'
     +(totalFeelings>0?'<p class="lbl" style="margin-bottom:8px;margin-top:16px">Como você tem se sentido</p><div class="card" style="margin-bottom:20px;display:flex;gap:0">'+[['easy','😊','Fácil','var(--green)'],['medium','😤','Moderado','var(--orange)'],['hard','🥵','Difícil','var(--red)']].map(function(arr){return'<div style="flex:1;text-align:center;padding:12px 4px;border-right:1px solid var(--border)"><div style="font-size:22px">'+arr[1]+'</div><div style="font-family:var(--fd);font-size:22px;color:'+arr[3]+'">'+feelingStats[arr[0]]+'</div><div style="font-size:11px;color:var(--muted)">'+arr[2]+'</div></div>';}).join('')+'</div>':'')
     +(top.length?'<p class="lbl" style="margin-bottom:12px;margin-top:4px">Mais Realizados</p><div class="card" style="margin-bottom:20px">'+top.map(function(arr,i){return'<div style="margin-bottom:'+(i<top.length-1?'12px':'0')+'"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:14px;font-weight:600">'+esc(arr[0])+'</span><span style="font-size:13px;color:var(--muted)">'+arr[1]+' séries</span></div><div class="prog"><div class="prog-fill" style="width:'+arr[1]/maxC*100+'%"></div></div></div>';}).join('')+'</div>':'')
@@ -752,7 +752,7 @@ function renderWater(){
     var ml=getWaterToday(),meta=getWaterMeta(),pct=Math.min(100,Math.round(ml/meta*100));
     var cups=Math.ceil(meta/250),filled=Math.round(ml/250);
     var sub=document.getElementById('water-sub');
-    if(sub) sub.textContent=ml+'ml de '+meta+'ml — '+pct+'%';
+    if(sub) sub.textContent=ml+'ml de '+meta+'ml - '+pct+'%';
     var drops='';
     for(var i=0;i<cups;i++){
       drops+='<div class="drop '+(i<filled?'filled':'')+'" onclick="addWater(250);renderWater()">💧</div>';
@@ -865,7 +865,7 @@ function showAllSuggestions(meal){
   (FOOD_SUGGESTIONS[meal]||[]).forEach(function(s){
     btns+='<button data-meal="'+meal+'" data-item="'+esc(s)+'" onclick="addFoodItem(this.dataset.meal,this.dataset.item);closeModal()" style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;font-size:14px;color:var(--txt);cursor:pointer;text-align:left;font-family:var(--fb)">'+esc(s)+'</button>';
   });
-  openModal('<h3 style="font-family:var(--fd);font-size:22px;margin-bottom:16px">Sugestões — '+mname+'</h3><div style="display:flex;flex-direction:column;gap:8px">'+btns+'</div>');
+  openModal('<h3 style="font-family:var(--fd);font-size:22px;margin-bottom:16px">Sugestões - '+mname+'</h3><div style="display:flex;flex-direction:column;gap:8px">'+btns+'</div>');
 }
 
 function renderTennis(){
@@ -954,15 +954,15 @@ function renderProfile(){
 var SUGGEST_FILTER='all';
 var WORKOUT_LIBRARY=[
   {id:'sl1',category:'hypertrophy',level:'beginner',name:'Iniciante Full Body A',days:'3x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Agachamento',sets:3,reps:10},{name:'Supino',sets:3,reps:10},{name:'Remada',sets:3,reps:10},{name:'Shoulder Press',sets:3,reps:10},{name:'Bíceps Curl',sets:3,reps:12},{name:'Tríceps na Corda',sets:3,reps:12},{name:'Abdominal',sets:3,reps:15}]},
-  {id:'sl2',category:'hypertrophy',level:'intermediate',name:'Push Pull Legs — Push',days:'6x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Supino',sets:4,reps:8},{name:'Shoulder Press',sets:4,reps:8},{name:'Pec Deck',sets:3,reps:12},{name:'Elevação Frontal',sets:3,reps:12},{name:'Lateral Raise',sets:3,reps:15},{name:'Tríceps na Corda',sets:4,reps:12},{name:'Pullover',sets:3,reps:12}]},
-  {id:'sl3',category:'hypertrophy',level:'intermediate',name:'Push Pull Legs — Pull',days:'6x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Remada',sets:4,reps:8},{name:'Lat Pulldown',sets:4,reps:10},{name:'Face Pull',sets:3,reps:15},{name:'Rosca Direta',sets:4,reps:10},{name:'Rosca Martelo',sets:3,reps:12},{name:'Abdominal',sets:3,reps:20}]},
-  {id:'sl4',category:'hypertrophy',level:'intermediate',name:'Push Pull Legs — Legs',days:'6x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Agachamento',sets:4,reps:8},{name:'Leg Press',sets:4,reps:10},{name:'Leg Extension',sets:3,reps:12},{name:'Seated Leg Curl',sets:3,reps:12},{name:'Hip Adductor',sets:3,reps:15},{name:'Calf Raise',sets:4,reps:15},{name:'Afundo',sets:3,reps:10}]},
+  {id:'sl2',category:'hypertrophy',level:'intermediate',name:'Push Pull Legs - Push',days:'6x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Supino',sets:4,reps:8},{name:'Shoulder Press',sets:4,reps:8},{name:'Pec Deck',sets:3,reps:12},{name:'Elevação Frontal',sets:3,reps:12},{name:'Lateral Raise',sets:3,reps:15},{name:'Tríceps na Corda',sets:4,reps:12},{name:'Pullover',sets:3,reps:12}]},
+  {id:'sl3',category:'hypertrophy',level:'intermediate',name:'Push Pull Legs - Pull',days:'6x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Remada',sets:4,reps:8},{name:'Lat Pulldown',sets:4,reps:10},{name:'Face Pull',sets:3,reps:15},{name:'Rosca Direta',sets:4,reps:10},{name:'Rosca Martelo',sets:3,reps:12},{name:'Abdominal',sets:3,reps:20}]},
+  {id:'sl4',category:'hypertrophy',level:'intermediate',name:'Push Pull Legs - Legs',days:'6x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Agachamento',sets:4,reps:8},{name:'Leg Press',sets:4,reps:10},{name:'Leg Extension',sets:3,reps:12},{name:'Seated Leg Curl',sets:3,reps:12},{name:'Hip Adductor',sets:3,reps:15},{name:'Calf Raise',sets:4,reps:15},{name:'Afundo',sets:3,reps:10}]},
   {id:'sl5',category:'loss',level:'beginner',name:'Circuito Queima de Gordura',days:'4x/semana',goal:'🔥 Emagrecimento',exercises:[{name:'Agachamento',sets:4,reps:15},{name:'Supino',sets:4,reps:15},{name:'Remada',sets:4,reps:15},{name:'Shoulder Press',sets:3,reps:15},{name:'Abdominal',sets:4,reps:20},{name:'Stiff',sets:3,reps:15}]},
   {id:'sl6',category:'loss',level:'intermediate',name:'HIIT Funcional',days:'4x/semana',goal:'🔥 Emagrecimento',exercises:[{name:'Agachamento',sets:5,reps:20},{name:'Afundo',sets:4,reps:15},{name:'Abdominal',sets:5,reps:25},{name:'Shoulder Press',sets:4,reps:15},{name:'Remada',sets:4,reps:15}]},
-  {id:'sl7',category:'strength',level:'intermediate',name:'Força — Método 5x5',days:'3x/semana',goal:'🏋️ Força',exercises:[{name:'Agachamento',sets:5,reps:5},{name:'Supino',sets:5,reps:5},{name:'Remada',sets:5,reps:5},{name:'Shoulder Press',sets:5,reps:5},{name:'Stiff',sets:5,reps:5}]},
-  {id:'sl8',category:'strength',level:'advanced',name:'Força — Powerlifting Base',days:'4x/semana',goal:'🏋️ Força',exercises:[{name:'Agachamento',sets:5,reps:3},{name:'Supino',sets:5,reps:3},{name:'Stiff',sets:4,reps:5},{name:'Remada',sets:4,reps:6},{name:'Shoulder Press',sets:4,reps:5},{name:'Abdominal',sets:4,reps:15}]},
+  {id:'sl7',category:'strength',level:'intermediate',name:'Força - Método 5x5',days:'3x/semana',goal:'🏋️ Força',exercises:[{name:'Agachamento',sets:5,reps:5},{name:'Supino',sets:5,reps:5},{name:'Remada',sets:5,reps:5},{name:'Shoulder Press',sets:5,reps:5},{name:'Stiff',sets:5,reps:5}]},
+  {id:'sl8',category:'strength',level:'advanced',name:'Força - Powerlifting Base',days:'4x/semana',goal:'🏋️ Força',exercises:[{name:'Agachamento',sets:5,reps:3},{name:'Supino',sets:5,reps:3},{name:'Stiff',sets:4,reps:5},{name:'Remada',sets:4,reps:6},{name:'Shoulder Press',sets:4,reps:5},{name:'Abdominal',sets:4,reps:15}]},
   {id:'sl9',category:'endurance',level:'beginner',name:'Resistência Muscular',days:'3x/semana',goal:'🏃 Resistência',exercises:[{name:'Agachamento',sets:3,reps:20},{name:'Supino',sets:3,reps:20},{name:'Remada',sets:3,reps:20},{name:'Lat Pulldown',sets:3,reps:20},{name:'Shoulder Press',sets:3,reps:20},{name:'Abdominal',sets:3,reps:30}]},
-  {id:'sl10',category:'hypertrophy',level:'advanced',name:'GVT — Volume Alemão',days:'5x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Supino',sets:10,reps:10},{name:'Remada',sets:10,reps:10},{name:'Agachamento',sets:10,reps:10},{name:'Shoulder Press',sets:4,reps:12},{name:'Bíceps Curl',sets:3,reps:12},{name:'Tríceps na Corda',sets:3,reps:12}]}
+  {id:'sl10',category:'hypertrophy',level:'advanced',name:'GVT - Volume Alemão',days:'5x/semana',goal:'💪 Hipertrofia',exercises:[{name:'Supino',sets:10,reps:10},{name:'Remada',sets:10,reps:10},{name:'Agachamento',sets:10,reps:10},{name:'Shoulder Press',sets:4,reps:12},{name:'Bíceps Curl',sets:3,reps:12},{name:'Tríceps na Corda',sets:3,reps:12}]}
 ];
 var CATEGORY_LABELS={all:'Todos',hypertrophy:'💪 Hipertrofia',loss:'🔥 Emagrecimento',strength:'🏋️ Força',endurance:'🏃 Resistência'};
 var LEVEL_LABELS={beginner:'Iniciante',intermediate:'Intermediário',advanced:'Avançado'};
@@ -1018,7 +1018,7 @@ authRenderUsersList();
       return;
     }
   }
-  // No valid session — show auth screen (already visible by default)
+  // No valid session - show auth screen (already visible by default)
 })();
 
 fetch('exercise_imgs.json')
