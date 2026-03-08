@@ -217,6 +217,7 @@ function showPage(name,data){
   else if(name==='tennis')renderTennis();
   else if(name==='activity')renderActivity();
   else if(name==='detail')renderDetail(data);
+  else if(name==='expicker')renderExPicker(data);
   else if(name==='water')renderWater();
   else if(name==='food')renderFood();
   else if(name==='suggest')renderSuggest();

@@ -12,13 +12,17 @@ function renderExerciseEditorModal(wId){
     var wC=getWorkouts().find(function(x){return x.id===wId;});
     return(wC.exercises||[]).map(function(ex){return'<div id="exrow-'+ex.id+'" style="background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="color:var(--muted);font-size:16px;flex-shrink:0">\u2630</span><input value="'+esc(ex.name)+'" list="ex-sugg-modal" placeholder="Nome do exerc\u00EDcio" oninput="modalUpdEx(\''+wId+'\',\''+ex.id+'\',\'name\',this.value)" style="flex:1;font-weight:600;font-size:14px;padding:7px 10px"/><button onclick="modalRmEx(\''+wId+'\',\''+ex.id+'\')" style="background:none;border:none;color:var(--red);font-size:20px;padding:4px;cursor:pointer;flex-shrink:0">\u2715</button></div><div style="display:flex;gap:8px"><div style="flex:1"><span class="lbl">S\u00E9ries</span><input type="number" value="'+ex.sets+'" min="1" oninput="modalUpdEx(\''+wId+'\',\''+ex.id+'\',\'sets\',+this.value)" style="text-align:center;padding:7px 8px;font-size:15px"/></div><div style="flex:1"><span class="lbl">Reps</span><input type="number" value="'+ex.reps+'" min="1" oninput="modalUpdEx(\''+wId+'\',\''+ex.id+'\',\'reps\',+this.value)" style="text-align:center;padding:7px 8px;font-size:15px"/></div></div></div>';}).join('');
   }
-  openModal('<div style="margin-bottom:16px"><h2 style="font-family:var(--fd);font-size:24px">'+esc(w.name)+'</h2><p style="font-size:12px;color:var(--txt2)">Toque no nome para editar</p></div>'
+  openModal(
+    '<div style="margin-bottom:16px"><h2 style="font-family:var(--fd);font-size:24px">'+esc(w.name)+'</h2><p style="font-size:12px;color:var(--txt2)">Toque no nome para editar</p></div>'
     +'<span class="lbl" style="margin-bottom:10px">Nome do treino</span>'
     +'<input id="modal-wo-name" value="'+esc(w.name)+'" oninput="modalRenameWorkout(\''+wId+'\',this.value)" style="margin-bottom:16px;font-size:17px;font-weight:700"/>'
     +'<span class="lbl" style="margin-bottom:10px">Exerc\u00EDcios</span>'
     +'<datalist id="ex-sugg-modal">'+EXSUGG.map(function(s){return'<option value="'+esc(s)+'">';}).join('')+'</datalist>'
     +'<div id="modal-ex-list">'+exRows()+'</div>'
-    +'<button onclick="modalAddEx(\''+wId+'\')" style="width:100%;padding:12px;border-radius:var(--r);border:2px dashed var(--blue);background:var(--bluedim);color:var(--blue2);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:20px;font-family:var(--fb)">+ Adicionar Exerc\u00EDcio</button>'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-top:4px;margin-bottom:20px">'
+    +'<button onclick="modalAddEx(\''+wId+'\')" style="flex:1;padding:12px;border-radius:var(--r);border:2px dashed var(--blue);background:var(--bluedim);color:var(--blue2);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--fb)">+ Adicionar exerc\u00EDcio</button>'
+    +'<button data-wid="'+wId+'" onclick="closeModal();showPage(\'expicker\',this.dataset.wid)" style="width:52px;height:52px;flex-shrink:0;border-radius:var(--r);border:2px dashed var(--green);background:rgba(63,185,80,0.08);color:var(--green);font-size:24px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center">\u2192</button>'
+    +'</div>'
     +'<button class="btn btn-green" onclick="closeModal();renderHome();if(WO&&WO.workout.id===\''+wId+'\'){WO.workout=getWorkouts().find(function(x){return x.id===\''+wId+'\';});renderWoBody();}">\u2713 Salvar e Fechar</button>');
 }
 
@@ -182,6 +186,115 @@ function pickExercise(wId, name){
   toast('\u2705 '+name+' adicionado!');
 }
 // === END EXERCISE PICKER ===
+
+// === FULL SCREEN EXERCISE PICKER PAGE ===
+var EX_CATS={
+  'Peito':['supino','crucifixo','voador','peck','crossover','flex\u00E3o','chest','fly'],
+  'Costas':['remada','puxada','barra fixa','levantamento terra','serrote','pulldown','row','lat','deadlift','pull'],
+  '\u00D3mbros':['eleva\u00E7\u00E3o','desenvolvimento','press','lateral','frontal','shoulder','militar'],
+  'B\u00EDceps':['biceps','curl','rosca','hammer','scott'],
+  'Tr\u00EDceps':['triceps','francesa','testa','mergulho','corda','skull','pushdown','dip'],
+  'Pernas':['agachamento','leg','cadeira','mesa','gluteo','afundo','stiff','squat','lunge','panturrilha','calf','hack','extens\u00E3o'],
+  'Abdomen':['abdominal','prancha','crunch','plank','obl\u00EDquo'],
+  'Cardio':['corrida','bicicleta','esteira','el\u00EDptico','corda','hiit','jumping'],
+};
+var _epWId='',_epCat='Todos',_epSearch='';
+
+function exCategory(name){
+  var n=name.toLowerCase();
+  var cats=Object.keys(EX_CATS);
+  for(var i=0;i<cats.length;i++){
+    var kws=EX_CATS[cats[i]];
+    for(var j=0;j<kws.length;j++){if(n.indexOf(kws[j].toLowerCase())>=0)return cats[i];}
+  }
+  return 'Outros';
+}
+
+function renderExPicker(wId){
+  _epWId=wId; _epCat='Todos'; _epSearch='';
+  var w=getWorkouts().find(function(x){return x.id===wId;});
+  var wName=w?w.name:'Treino';
+
+  // Header
+  document.getElementById('expicker-hdr').innerHTML=
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">'
+    +'<button onclick="showPage(\'home\');setTimeout(function(){homeEditExercises(\''+wId+'\');},80)" style="background:none;border:none;color:var(--txt2);font-size:22px;padding:4px;cursor:pointer">\u2190</button>'
+    +'<div style="flex:1"><div style="font-family:var(--fd);font-size:20px">Banco de Exerc\u00EDcios</div>'
+    +'<div style="font-size:12px;color:var(--txt2)">Adicionando a: '+esc(wName)+'</div></div>'
+    +'<div id="ep-added-count" style="background:var(--green);color:#fff;border-radius:99px;padding:4px 12px;font-size:13px;font-weight:700;display:none">0 adicionados</div>'
+    +'</div>'
+    +'<input id="ep-search" type="search" placeholder="Buscar..." oninput="_epSearch=this.value;renderExPickerBody()" style="width:100%;padding:10px 14px;font-size:15px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg2);color:var(--txt);box-sizing:border-box;margin-bottom:10px"/>'
+    +'<div id="ep-cats" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none"></div>';
+
+  renderExPickerCats();
+  renderExPickerBody();
+}
+
+function renderExPickerCats(){
+  var catOrder=['Todos'].concat(Object.keys(EX_CATS)).concat(['Outros']);
+  var el=document.getElementById('ep-cats');
+  if(!el)return;
+  el.innerHTML=catOrder.map(function(cat){
+    var active=cat===_epCat;
+    return '<button data-cat="'+cat+'" onclick="_epCat=this.dataset.cat;renderExPickerCats();renderExPickerBody()" style="flex-shrink:0;padding:7px 14px;border-radius:99px;border:1px solid '+(active?'var(--blue)':'var(--border)')+';background:'+(active?'var(--bluedim)':'var(--bg)')+';color:'+(active?'var(--blue2)':'var(--txt2)')+';font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap">'+cat+'</button>';
+  }).join('');
+}
+
+function renderExPickerBody(){
+  var el=document.getElementById('expicker-body');
+  if(!el)return;
+  var allEx=Object.keys(EXERCISE_IMGS).sort();
+  var filterLow=_epSearch.toLowerCase();
+  var catOrder=Object.keys(EX_CATS).concat(['Outros']);
+  // Get already-added names for this workout
+  var w=getWorkouts().find(function(x){return x.id===_epWId;});
+  var addedNames=(w?w.exercises:[]).map(function(e){return e.name.toLowerCase();});
+
+  var html='';
+  var totalShown=0;
+  catOrder.forEach(function(cat){
+    if(_epCat!=='Todos'&&cat!==_epCat)return;
+    var items=allEx.filter(function(n){
+      return exCategory(n)===cat&&(!filterLow||n.toLowerCase().indexOf(filterLow)>=0);
+    });
+    if(!items.length)return;
+    html+='<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.08em;padding:10px 0 6px">'+cat.toUpperCase()+' ('+items.length+')</div>';
+    items.forEach(function(name){
+      var img=EXERCISE_IMGS[name];
+      var already=addedNames.indexOf(name.toLowerCase())>=0;
+      totalShown++;
+      html+='<div style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid '+(already?'var(--green)':'var(--border)')+';border-radius:var(--r);padding:10px 12px;margin-bottom:8px">'
+        +'<div style="width:58px;height:58px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--bg2)">'
+        +(img?'<img src="'+img+'" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>':'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">\uD83D\uDCAA</div>')
+        +'</div>'
+        +'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:15px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(name)+'</div>'
+        +'<div style="font-size:12px;color:var(--muted);margin-top:2px">'+cat+'</div></div>'
+        +(already
+          ?'<div style="flex-shrink:0;width:40px;height:40px;border-radius:var(--rs);background:rgba(63,185,80,0.15);display:flex;align-items:center;justify-content:center;font-size:20px">\u2713</div>'
+          :'<button data-name="'+esc(name)+'" onclick="epAddExercise(this.dataset.name)" style="flex-shrink:0;width:40px;height:40px;border-radius:var(--rs);border:none;background:var(--blue);color:#fff;font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>'
+        )
+        +'</div>';
+    });
+  });
+  if(!totalShown) html='<div style="text-align:center;padding:40px 0;color:var(--muted)">\uD83D\uDD0D Nenhum exerc\u00EDcio encontrado</div>';
+  el.innerHTML=html;
+}
+
+function epAddExercise(name){
+  if(!_epWId)return;
+  var ne={id:uid(),name:name,sets:3,reps:10,weight:0};
+  saveWorkouts(getWorkouts().map(function(w){
+    return w.id===_epWId?Object.assign({},w,{exercises:(w.exercises||[]).concat([ne])}):w;
+  }));
+  toast('\u2705 '+name+' adicionado!');
+  // Update counter badge
+  var w=getWorkouts().find(function(x){return x.id===_epWId;});
+  var cnt=document.getElementById('ep-added-count');
+  if(cnt&&w){cnt.style.display='block';cnt.textContent=w.exercises.length+' no treino';}
+  // Re-render body to show checkmark
+  renderExPickerBody();
+}
+// === END EXERCISE PICKER PAGE ===
 
 var WO=null;
 function woBegin(){
