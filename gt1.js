@@ -40,6 +40,149 @@ function modalAddEx(wId){
   }
 }
 
+// === EXERCISE PICKER ===
+var EX_CATS = {
+  'Peito':       ['supino','crucifixo','voador','peck','crossover','flexao','chest'],
+  'Costas':      ['remada','puxada','barra fixa','levantamento terra','serrote','pulldown','row','lat','deadlift','pull'],
+  'Ombros':      ['elevacao','desenvolvimento','press','lateral','frontal','shoulder','militar'],
+  'Biceps':      ['biceps','curl','rosca','hammer','scott'],
+  'Triceps':     ['triceps','francesa','testa','mergulho','corda','skull','pushdown','dip'],
+  'Pernas':      ['agachamento','leg','cadeira','mesa','gluteo','afundo','stiff','squat','lunge','panturrilha','calf','hack','extensao'],
+  'Abdomen':     ['abdominal','prancha','crunch','plank','obliquo','abdom'],
+  'Cardio':      ['corrida','bicicleta','esteira','eliptico','corda','hiit','jumping'],
+};
+
+function exCategory(name){
+  var n = name.toLowerCase();
+  var cats = Object.keys(EX_CATS);
+  for(var i=0;i<cats.length;i++){
+    var kws = EX_CATS[cats[i]];
+    for(var j=0;j<kws.length;j++){
+      if(n.indexOf(kws[j]) >= 0) return cats[i];
+    }
+  }
+  return 'Outros';
+}
+
+function openExPicker(wId){
+  var allEx = Object.keys(EXERCISE_IMGS).sort();
+  // Group by category
+  var groups = {};
+  allEx.forEach(function(name){
+    var cat = exCategory(name);
+    if(!groups[cat]) groups[cat] = [];
+    groups[cat].push(name);
+  });
+  var catOrder = Object.keys(EX_CATS).concat(['Outros']);
+
+  function renderPicker(filter, activeCat){
+    var html = '<h2 style="font-family:var(--fd);font-size:22px;margin-bottom:12px">\uD83D\uDCF7 Banco de Exerc\u00EDcios</h2>'
+      + '<input id="ex-pick-search" type="search" placeholder="Buscar exerc\u00EDcio..." value="'+filter+'" oninput="refreshExPicker(\''+wId+'\')" style="margin-bottom:12px;font-size:15px;padding:10px 14px"/>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">';
+    // Category tabs
+    ['Todos'].concat(catOrder).forEach(function(cat){
+      var active = cat === activeCat;
+      html += '<button data-cat="'+cat+'" onclick="filterExPickerCat(\''+wId+'\',this.dataset.cat)" style="padding:6px 12px;border-radius:99px;border:1px solid '+(active?'var(--blue)':'var(--border)')+';background:'+(active?'var(--bluedim)':'var(--bg)')+';color:'+(active?'var(--blue2)':'var(--txt2)')+';font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap">'+cat+'</button>';
+    });
+    html += '</div><div id="ex-pick-results" style="display:flex;flex-direction:column;gap:8px">';
+
+    var filterLow = filter.toLowerCase();
+    var shown = 0;
+    catOrder.forEach(function(cat){
+      if(activeCat !== 'Todos' && cat !== activeCat) return;
+      var items = (groups[cat]||[]).filter(function(n){ return !filterLow || n.toLowerCase().indexOf(filterLow)>=0; });
+      if(!items.length) return;
+      html += '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.08em;margin-top:4px;margin-bottom:4px">'+cat.toUpperCase()+'</div>';
+      items.forEach(function(name){
+        var img = EXERCISE_IMGS[name];
+        shown++;
+        html += '<button data-name="'+esc(name)+'" data-wid="'+wId+'" onclick="pickExercise(this.dataset.wid,this.dataset.name)" style="display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;text-align:left">'
+          + '<div style="width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2)">'
+          + (img ? '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">\uD83D\uDCAA</div>')
+          + '</div>'
+          + '<span style="font-size:14px;font-weight:600;color:var(--txt)">'+esc(name)+'</span>'
+          + '<span style="margin-left:auto;color:var(--green);font-size:20px">+</span>'
+          + '</button>';
+      });
+    });
+    if(!shown) html += '<p style="color:var(--muted);text-align:center;padding:20px 0">Nenhum exerc\u00EDcio encontrado</p>';
+    html += '</div><button class="btn btn-ghost" onclick="closeModal();homeEditExercises(\''+wId+'\')" style="margin-top:16px">Voltar</button>';
+    return html;
+  }
+
+  window._exPickerWId = wId;
+  window._exPickerCat = 'Todos';
+  openModal(renderPicker('', 'Todos'));
+}
+
+function refreshExPicker(wId){
+  var inp = document.getElementById('ex-pick-search');
+  var filter = inp ? inp.value : '';
+  window._exPickerWId = wId;
+  openExPickerRefresh(wId, filter, window._exPickerCat||'Todos');
+}
+
+function filterExPickerCat(wId, cat){
+  window._exPickerCat = cat;
+  var inp = document.getElementById('ex-pick-search');
+  var filter = inp ? inp.value : '';
+  openExPickerRefresh(wId, filter, cat);
+}
+
+function openExPickerRefresh(wId, filter, activeCat){
+  var allEx = Object.keys(EXERCISE_IMGS).sort();
+  var groups = {};
+  allEx.forEach(function(name){
+    var cat = exCategory(name);
+    if(!groups[cat]) groups[cat] = [];
+    groups[cat].push(name);
+  });
+  var catOrder = Object.keys(EX_CATS).concat(['Outros']);
+  var filterLow = filter.toLowerCase();
+
+  // Update category tabs
+  document.querySelectorAll('[data-cat]').forEach(function(btn){
+    var active = btn.dataset.cat === activeCat;
+    btn.style.border = '1px solid '+(active?'var(--blue)':'var(--border)');
+    btn.style.background = active?'var(--bluedim)':'var(--bg)';
+    btn.style.color = active?'var(--blue2)':'var(--txt2)';
+  });
+
+  // Update results
+  var results = document.getElementById('ex-pick-results');
+  if(!results) return;
+  var html = '';
+  var shown = 0;
+  catOrder.forEach(function(cat){
+    if(activeCat !== 'Todos' && cat !== activeCat) return;
+    var items = (groups[cat]||[]).filter(function(n){ return !filterLow || n.toLowerCase().indexOf(filterLow)>=0; });
+    if(!items.length) return;
+    html += '<div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:0.08em;margin-top:4px;margin-bottom:4px">'+cat.toUpperCase()+'</div>';
+    items.forEach(function(name){
+      var img = EXERCISE_IMGS[name];
+      shown++;
+      html += '<button data-name="'+esc(name)+'" data-wid="'+wId+'" onclick="pickExercise(this.dataset.wid,this.dataset.name)" style="display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;text-align:left">'
+        + '<div style="width:52px;height:52px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2)">'
+        + (img ? '<img src="'+img+'" style="width:100%;height:100%;object-fit:cover" loading="lazy"/>' : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">\uD83D\uDCAA</div>')
+        + '</div>'
+        + '<span style="font-size:14px;font-weight:600;color:var(--txt)">'+esc(name)+'</span>'
+        + '<span style="margin-left:auto;color:var(--green);font-size:20px">+</span>'
+        + '</button>';
+    });
+  });
+  if(!shown) html = '<p style="color:var(--muted);text-align:center;padding:20px 0">Nenhum exerc\u00EDcio encontrado</p>';
+  results.innerHTML = html;
+}
+
+function pickExercise(wId, name){
+  var ne = {id:uid(), name:name, sets:3, reps:10, weight:0};
+  saveWorkouts(getWorkouts().map(function(w){
+    return w.id===wId ? Object.assign({},w,{exercises:(w.exercises||[]).concat([ne])}) : w;
+  }));
+  toast('\u2705 '+name+' adicionado!');
+}
+// === END EXERCISE PICKER ===
+
 var WO=null;
 function woBegin(){
   if(!WO||WO.started)return;
