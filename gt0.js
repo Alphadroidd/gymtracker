@@ -57,6 +57,7 @@ function authStartSession(username){
   document.getElementById('user-switcher').style.display='flex';
   document.getElementById('user-badge-name').textContent=username;
   initData();
+  woRestoreState();
   renderHome();
 }
 function authShowSwitcher(){

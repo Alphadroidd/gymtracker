@@ -297,6 +297,45 @@ function epAddExercise(name){
 // === END EXERCISE PICKER PAGE ===
 
 var WO=null;
+var WO_STATE_KEY='gt_wo_state';
+function woSaveState(){
+  if(!WO)return;
+  try{
+    localStorage.setItem(WO_STATE_KEY,JSON.stringify({
+      workoutId:WO.workout.id,
+      started:WO.started,
+      elapsed:WO.elapsed,
+      startedAt:WO.started?(Date.now()-WO.elapsed*1000):null,
+      sets:WO.sets,
+      data:WO.data,
+      feeling:WO.feeling
+    }));
+  }catch(e){}
+}
+function woRestoreState(){
+  try{
+    var raw=localStorage.getItem(WO_STATE_KEY);if(!raw)return false;
+    var saved=JSON.parse(raw);
+    var w=getWorkouts().find(function(x){return x.id===saved.workoutId;});
+    if(!w){localStorage.removeItem(WO_STATE_KEY);return false;}
+    WO={workout:w,start:saved.started?saved.startedAt:null,started:saved.started,
+        elapsed:saved.elapsed||0,timer:null,restTimer:null,
+        restRemaining:0,restTotal:60,sets:saved.sets||{},data:saved.data||{},feeling:saved.feeling||null};
+    w.exercises.forEach(function(ex){
+      if(!(ex.id in WO.sets))WO.sets[ex.id]=0;
+      if(!(ex.id in WO.data))WO.data[ex.id]={weight:ex.weight||0,reps:ex.reps};
+    });
+    if(WO.started){
+      WO.timer=setInterval(function(){
+        WO.elapsed=Math.floor((Date.now()-WO.start)/1000);
+        var el=document.getElementById('wo-clock');if(el)el.textContent=fmtDur(WO.elapsed);
+        var bc=document.getElementById('banner-clock');if(bc)bc.textContent=fmtDur(WO.elapsed);
+        woUpdateProgress();woSaveState();
+      },1000);
+    }
+    return true;
+  }catch(e){localStorage.removeItem(WO_STATE_KEY);return false;}
+}
 function woBegin(){
   if(!WO||WO.started)return;
   WO.started=true;WO.start=Date.now();
@@ -304,8 +343,9 @@ function woBegin(){
     WO.elapsed=Math.floor((Date.now()-WO.start)/1000);
     var el=document.getElementById('wo-clock');if(el)el.textContent=fmtDur(WO.elapsed);
     var bc=document.getElementById('banner-clock');if(bc)bc.textContent=fmtDur(WO.elapsed);
-    woUpdateProgress();
+    woUpdateProgress();woSaveState();
   },1000);
+  woSaveState();
   renderWoHeader();
 }
 function startWorkout(id){
@@ -316,9 +356,13 @@ function startWorkout(id){
   var lw=lastWeightsMap();
   WO={workout:w,start:null,started:false,elapsed:0,timer:null,restTimer:null,restRemaining:0,restTotal:60,sets:{},data:{},feeling:null};
   w.exercises.forEach(function(ex){WO.sets[ex.id]=0;WO.data[ex.id]={weight:lw[ex.name]||ex.weight||0,reps:ex.reps};});
+  woSaveState();
   renderWoHeader();renderWoBody();renderMusicPlayer();
 }
-function stopWorkout(){if(WO){if(WO.timer)clearInterval(WO.timer);if(WO.restTimer)clearInterval(WO.restTimer);}WO=null;}
+function stopWorkout(){
+  if(WO){if(WO.timer)clearInterval(WO.timer);if(WO.restTimer)clearInterval(WO.restTimer);}
+  WO=null;localStorage.removeItem(WO_STATE_KEY);
+}
 function woTotalSets(){return WO?WO.workout.exercises.reduce(function(a,e){return a+e.sets;},0):0;}
 function woDoneSets(){return WO?Object.values(WO.sets).reduce(function(a,v){return a+v;},0):0;}
 function woUpdateProgress(){
@@ -371,6 +415,7 @@ function woSet(exId,field,val){if(!WO)return;var _d=WO.data[exId]||{};_d[field]=
 function woCompleteSet(exId){
   if(!WO)return;if(!WO.started)woBegin();
   WO.sets[exId]=(WO.sets[exId]||0)+1;vib([50,30,100]);
+  woSaveState();
   var ex=WO.workout.exercises.find(function(e){return e.id===exId;});
   var card=document.getElementById('exc-'+exId);
   if(card&&ex){var t=document.createElement('div');t.innerHTML=renderExCard(ex);card.replaceWith(t.firstElementChild);}

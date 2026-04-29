@@ -50,12 +50,31 @@ function woFinish(){
 
 function renderMusicPlayer(){
   var saved=localStorage.getItem('gt_music_url')||'',el=document.getElementById('music-player');if(!el)return;
-  if(!saved){el.innerHTML='<div style="padding:10px 14px;display:flex;align-items:center;gap:10px"><span style="font-size:18px;flex-shrink:0">\uD83C\uDFB5</span><input id="music-url-inp" placeholder="Cole link YouTube / playlist..." style="flex:1;font-size:13px;padding:7px 10px;border-radius:8px"/><button onclick="setMusicUrl()" style="background:var(--blue);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);flex-shrink:0">\u25B6 Play</button></div>';return;}
+  if(!saved){
+    el.innerHTML='<div style="padding:10px 14px;display:flex;align-items:center;gap:8px">'
+      +'<span style="font-size:18px;flex-shrink:0">\uD83C\uDFB5</span>'
+      +'<input id="music-url-inp" placeholder="Cole link YouTube / playlist..." style="flex:1;font-size:13px;padding:7px 10px;border-radius:8px" onkeydown="if(event.key===\'Enter\')setMusicUrl()"/>'
+      +'<button onclick="pasteMusic()" title="Colar" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--txt2);font-size:16px;cursor:pointer;flex-shrink:0">\uD83D\uDCCB</button>'
+      +'<button onclick="setMusicUrl()" style="background:var(--blue);border:none;border-radius:8px;padding:7px 14px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--fb);flex-shrink:0">\u25B6</button>'
+      +'</div>';
+    return;
+  }
   var embedUrl='',ytList=saved.match(/[?&]list=([\w-]+)/),ytVideo=saved.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
   if(ytList)embedUrl='https://www.youtube.com/embed/videoseries?list='+ytList[1]+'&autoplay=1&rel=0';
   else if(ytVideo)embedUrl='https://www.youtube.com/embed/'+ytVideo[1]+'?autoplay=1&rel=0';
   else embedUrl=saved;
   el.innerHTML='<div><div style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:16px">\uD83C\uDFB5</span><span style="font-size:12px;font-weight:600;color:var(--txt2)">Player de M\u00FAsica</span></div><div style="display:flex;gap:8px"><button onclick="toggleMusicSize()" id="music-size-btn" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--txt2);font-size:12px;cursor:pointer;font-family:var(--fb)">\u2B06 Expandir</button><button onclick="clearMusicUrl()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px">\u2715</button></div></div><div id="music-frame-wrap" style="height:0;overflow:hidden;transition:height 0.3s"><iframe src="'+embedUrl+'" style="width:100%;height:200px;border:none;display:block" allow="autoplay;encrypted-media" allowfullscreen></iframe></div></div>';
+}
+function pasteMusic(){
+  var inp=document.getElementById('music-url-inp');if(!inp)return;
+  if(navigator.clipboard&&navigator.clipboard.readText){
+    navigator.clipboard.readText().then(function(text){
+      if(text&&text.trim()){inp.value=text.trim();inp.focus();toast('\uD83D\uDCCB Link colado!');}
+      else{inp.focus();document.execCommand('paste');}
+    }).catch(function(){inp.focus();document.execCommand('paste');});
+  } else {
+    inp.focus();document.execCommand('paste');
+  }
 }
 function toggleMusicSize(){var wrap=document.getElementById('music-frame-wrap'),btn=document.getElementById('music-size-btn');if(!wrap)return;if(wrap.style.height==='0px'||wrap.style.height==='0'){wrap.style.height='200px';if(btn)btn.textContent='\u2B07 Minimizar';}else{wrap.style.height='0';if(btn)btn.textContent='\u2B06 Expandir';}}
 function setMusicUrl(){var inp=document.getElementById('music-url-inp');if(!inp||!inp.value.trim())return;localStorage.setItem('gt_music_url',inp.value.trim());renderMusicPlayer();setTimeout(function(){toggleMusicSize();},100);}
